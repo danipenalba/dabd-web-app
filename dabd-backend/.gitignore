@@ -1,0 +1,39 @@
+# Bytecode
+__pycache__/
+*.py[cod]
+
+# Entornos virtuales
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Archivos de configuración sensibles
+.env
+*.env
+
+# Archivos de bases de datos temporales
+*.sqlite3
+
+# Logs
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# Coverage
+htmlcov/
+.coverage
+.tox/
