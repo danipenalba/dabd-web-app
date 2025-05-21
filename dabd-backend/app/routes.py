@@ -13,6 +13,7 @@ def hello():
 @main.route('/login', methods = ['POST'])
 def login():
     data = request.get_json()
+    
     if not data or 'dni' not in data:
         return jsonify({"error": "Falta el campo 'dni'."}), 400
 
