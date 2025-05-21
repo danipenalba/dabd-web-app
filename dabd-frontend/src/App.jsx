@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import './App.css'
+import { useNavigate } from 'react-router-dom';
+import './App.css';
 
 function App() {
-  const [message, setMessage] = useState("Cargando...")
-  const [matches, setMatches] = useState([])
+  const navigate = useNavigate();
 
   return (
     <div className="app">
@@ -14,10 +12,10 @@ function App() {
 
       <main className="main-content">
         <p className="intro-text">¡Bienvenido! Elige una opción para comenzar:</p>
-        
+
         <div className="button-group">
-          <button>Iniciar Sesión</button>
-          <button className="secondary">Registrarse</button>
+          <button onClick={() => navigate('/login')}>Iniciar Sesión</button>
+          <button className="secondary" onClick={() => navigate('/register')}>Registrarse</button>
         </div>
       </main>
 
@@ -25,7 +23,7 @@ function App() {
         <p>&copy; 2025 Apuestas Futbolísticas. Todos los derechos reservados.</p>
       </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
