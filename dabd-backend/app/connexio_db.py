@@ -6,18 +6,9 @@ from dotenv import load_dotenv
 import threading
 import datetime
 
-# Carga las variables de entorno desde el archivo .env
+# Cargar variables de entorno
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path=env_path)
-
-# Variables de entorno para la conexión a la base de datos
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = int(os.getenv("DB_PORT"))  # Aquí cuidado si no está definido, daría error al hacer int(None)
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_OPTIONS = os.getenv("DB_OPTIONS")
-
 
 class ConnexioBD:
     _instance = None
@@ -40,21 +31,18 @@ class ConnexioBD:
     def _init_connection(self):
         try:
             db_config = {
-                'host': DB_HOST,
-                'port': DB_PORT,
-                'database': DB_NAME,
-                'user': DB_USER,
-                'password': DB_PASSWORD,
-                'options': DB_OPTIONS
+                'host': "ubiwan.epsevg.upc.edu",
+                'database': "est_e7599990",
+                'user': "est_e7599990",
+                'password': "dB.e7599990",
+                'options': "-c search_path=practica"
             }
 
-            # Validación básica de variables obligatorias
             if None in (db_config['host'], db_config['database'], db_config['user'], db_config['password']):
                 raise ValueError("❌ Falta una o más variables de entorno para la conexión a la BD.")
 
-            # Crear la conexión a PostgreSQL
-            self.con = psycopg2.connect(**db_config)
-            self.con.autocommit = True
+            self.conn = psycopg2.connect(**db_config)
+            self.conn.autocommit = True
             self.log("✅ Conexión establecida con éxito.")
         except (OperationalError, DatabaseError, ValueError) as e:
             self.log(f"❌ Error al conectar con la BD: {e}")
@@ -62,8 +50,7 @@ class ConnexioBD:
 
     def _verificar_conexion(self):
         try:
-            # Si no existe la conexión o está cerrada, reconectamos
-            if not hasattr(self, 'con') or self.con.closed != 0:
+            if not hasattr(self, 'conn') or self.conn.closed != 0:
                 self.log("🔄 La conexión estaba cerrada, reconectando...")
                 self._init_connection()
         except Exception as e:
@@ -71,8 +58,8 @@ class ConnexioBD:
             raise
 
     def close(self):
-        if hasattr(self, 'con') and self.con.closed == 0:
-            self.con.close()
+        if hasattr(self, 'conn') and self.conn.closed == 0:
+            self.conn.close()
             self.log("🔻 Conexión cerrada con éxito.")
 
     def __enter__(self):
@@ -85,7 +72,7 @@ class ConnexioBD:
     def executarConsulta(self, consulta_sql, params=None):
         self._verificar_conexion()
         try:
-            with self.con.cursor(cursor_factory=RealDictCursor) as cursor:
+            with self.conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(consulta_sql, params or ())
                 return cursor.fetchall()
         except DatabaseError as e:
@@ -95,10 +82,15 @@ class ConnexioBD:
     def executarComanda(self, comanda_sql, params=None):
         self._verificar_conexion()
         try:
-            with self.con.cursor() as cursor:
+            with self.conn.cursor() as cursor:
                 cursor.execute(comanda_sql, params or ())
                 return cursor.rowcount
         except DatabaseError as e:
             self.log(f"⚠️ Error en comanda SQL: {e}\nComanda: {comanda_sql}")
-            self.con.rollback()
+            self.conn.rollback()
             raise
+
+    def tancar(self):
+        if hasattr(self, 'conn') and self.conn.closed == 0:
+            self.conn.close()
+            self.log("🔻 Conexión cerrada desde 'tancar()'.")
