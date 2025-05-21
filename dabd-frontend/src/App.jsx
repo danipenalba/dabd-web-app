@@ -4,16 +4,26 @@ import './App.css'
 
 function App() {
   const [message, setMessage] = useState("Cargando...")
-
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/hello')
-      .then(response => setMessage(response.data.message))
-      .catch(error => setMessage("Error al conectar con el backend"))
-  }, [])
+  const [matches, setMatches] = useState([])
 
   return (
-    <div>
-      <h1>{message}</h1>
+    <div className="app">
+      <header className="header">
+        <h1>Apuestas Futbolísticas ⚽</h1>
+      </header>
+
+      <main className="main-content">
+        <p className="intro-text">¡Bienvenido! Elige una opción para comenzar:</p>
+        
+        <div className="button-group">
+          <button>Iniciar Sesión</button>
+          <button className="secondary">Registrarse</button>
+        </div>
+      </main>
+
+      <footer className="footer">
+        <p>&copy; 2025 Apuestas Futbolísticas. Todos los derechos reservados.</p>
+      </footer>
     </div>
   )
 }
