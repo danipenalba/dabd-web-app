@@ -1,0 +1,208 @@
+/* Mantenemos los mismos estilos base de App.css */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 2rem 5%;
+}
+
+.profile-card {
+  background: linear-gradient(135deg, rgba(26, 71, 42, 0.9), rgba(13, 46, 27, 0.95));
+  border-radius: 12px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.profile-card h2 {
+  font-size: 2.2rem;
+  color: var(--secondary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+.profile-section, .card-section {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.profile-section h3, .card-section h3 {
+  color: var(--secondary);
+  font-size: 1.5rem;
+  margin-bottom: 1.8rem;
+}
+
+.profile-field {
+  margin-bottom: 1.5rem;
+}
+
+.card-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.small-field {
+  flex: 1;
+}
+
+.profile-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #d0d0d0;
+  font-size: 0.9rem;
+}
+
+.field-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.field-content span {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  background: rgba(10, 20, 10, 0.5);
+  border-radius: 6px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.masked {
+  letter-spacing: 0.1em;
+  font-family: monospace;
+}
+
+.field-content input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  background: rgba(10, 20, 10, 0.5);
+  border: 1px solid var(--secondary);
+  border-radius: 6px;
+  color: white;
+  font-size: 1rem;
+}
+
+.card-input {
+  font-family: monospace;
+}
+
+.edit-btn {
+  padding: 0.6rem 1.2rem;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--secondary);
+  border-radius: 30px;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.edit-btn:hover {
+  background: rgba(212, 175, 55, 0.25);
+}
+
+.save-btn {
+  background: var(--secondary);
+  color: var(--dark);
+}
+
+.save-btn:hover {
+  background: #e6c44c;
+}
+
+.delete-btn {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.delete-btn:hover {
+  background: rgba(198, 40, 40, 0.15);
+}
+
+/* Modal de confirmación */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  background: linear-gradient(135deg, rgba(26, 71, 42, 0.95), rgba(13, 46, 27, 0.98));
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.confirmation-modal h3 {
+  color: var(--secondary);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.confirmation-modal p {
+  color: #d0d0d0;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.modal-buttons button {
+  padding: 0.8rem 2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 1rem;
+}
+
+.cancel-btn {
+  background: transparent;
+  color: var(--light);
+  border: 2px solid var(--gray) !important;
+}
+
+.cancel-btn:hover {
+  background: rgba(108, 117, 125, 0.2);
+}
+
+.confirm-delete-btn {
+  background: var(--accent);
+  color: white;
+}
+
+.confirm-delete-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+}
