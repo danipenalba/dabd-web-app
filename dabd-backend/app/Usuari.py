@@ -39,7 +39,7 @@ class Usuari:
             self.log(f"❌ Error al insertar: {e}")
             return False
         finally:
-            db.__del__()
+            db.tancar()
         return True
 
     # 🔹 Modificación 🔹
@@ -59,8 +59,13 @@ class Usuari:
             self.log(f"❌ Error al modificar: {e}")
             return False
         finally:
-            db.__del__()
-        return True
+            try:
+                db.tancar()
+            except Exception as e:
+                self.log(f"❌ Error al cerrar la conexión en finally: {e}")
+        return True  # 🔧 Faltaba esto
+
+
 
     # 🔹 Eliminación 🔹
     def esborra(self):
@@ -75,5 +80,5 @@ class Usuari:
             self.log(f"❌ Error al eliminar: {e}")
             return False
         finally:
-            db.__del__()
+            db.tancar()
         return True

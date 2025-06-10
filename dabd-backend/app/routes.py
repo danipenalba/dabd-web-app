@@ -1,5 +1,6 @@
 from flask import Blueprint, request, session, jsonify
 from app.ControladorUsuari import ControladorUsuari
+from app.ControladorPartit import ControladorPartit
 
 
 main = Blueprint('main', __name__)
@@ -21,3 +22,17 @@ def login():
         id_dni = data.get('dni')
     )
     return result, status_code
+
+
+@main.route('/perfil', methods=['PUT'])
+def modificar_perfil():
+    data = request.get_json()
+    ctrl = ControladorUsuari()
+    result, status_code = ctrl.modificar_perfil(data)
+    return result, status_code
+
+
+@main.route('/partits', methods=['GET'])
+def obtenir_partits():
+    ctrl = ControladorPartit()
+    return ctrl.obtenir_partits()

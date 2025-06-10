@@ -89,8 +89,22 @@ class ConnexioBD:
             self.log(f"⚠️ Error en comanda SQL: {e}\nComanda: {comanda_sql}")
             self.conn.rollback()
             raise
+    def __del__(self):
+        try:
+            self.tancar()
+        except Exception as e:
+            self.log(f"❌ Error en __del__: {e}")
 
     def tancar(self):
-        if hasattr(self, 'conn') and self.conn.closed == 0:
-            self.conn.close()
-            self.log("🔻 Conexión cerrada desde 'tancar()'.")
+        try:
+            if hasattr(self, 'conn'):
+                if self.conn and self.conn.closed == 0:
+                    self.conn.close()
+                    self.log("🔻 Conexión cerrada desde 'tancar()'.")
+                else:
+                    self.log("🔻 La conexión ya estaba cerrada o no inicializada.")
+            else:
+                self.log("⚠️ No hay atributo 'conn' para cerrar.")
+        except Exception as e:
+            self.log(f"❌ Error al cerrar la conexión: {e}")
+
