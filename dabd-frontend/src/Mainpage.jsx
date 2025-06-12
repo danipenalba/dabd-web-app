@@ -11,7 +11,7 @@ import copaReyImg from './images/coparey.png';
 import facupImg from './images/facup.png';
 import coupefranceImg from './images/coupefrance.png';
 import coppaitaliaImg from './images/coppaitalia.png';
-import dfbpokalImg from './images/dfbpokal.png';
+import dfbpokalImg from './images/dfbpokal.jpg';
 import superligaImg from './images/superliga.png';
 
 function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
