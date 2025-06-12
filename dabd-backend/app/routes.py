@@ -11,17 +11,19 @@ def hello():
 
 
 
-@main.route('/login', methods = ['POST'])
+@main.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data or 'dni' not in data:
-        return jsonify({"error": "Falta el campo 'dni'."}), 400
+    if not data or 'mail' not in data or 'password' not in data:
+        return jsonify({"error": "Falten els camps 'mail' i/o 'password'."}), 400
 
     ctrl = ControladorUsuari()
     result, status_code = ctrl.execute_login(
-        id_dni = data.get('dni')
+        email=data.get('mail'),
+        password=data.get('password')
     )
     return result, status_code
+
 
 
 @main.route('/perfil', methods=['PUT'])

@@ -6,6 +6,7 @@ function Register({ onNavigateToHome, onNavigateToLogin }) {
     nombre: '',
     dni: '',
     email: '',
+    password: '',
     numeroTarjeta: '',
     fechaCaducidad: '',
     cvc: ''
@@ -81,6 +82,19 @@ function Register({ onNavigateToHome, onNavigateToLogin }) {
                   onChange={handleChange}
                   required
                   placeholder="tu@email.com"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Contraseña</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="••••••••"
                 />
               </div>
             </div>

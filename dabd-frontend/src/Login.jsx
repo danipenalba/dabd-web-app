@@ -4,7 +4,7 @@ import './Login.css';
 function Login({ onNavigateToHome, onNavigateToRegister }) {
   const [formData, setFormData] = useState({
     email: '',
-    dni: ''
+    password: ''
   });
 
   const handleChange = (e) => {
@@ -14,11 +14,41 @@ function Login({ onNavigateToHome, onNavigateToRegister }) {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Datos del login:', formData);
-    // Aquí puedes agregar la lógica para autenticar al usuario
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log('Datos del login:', formData);
+
+  try {
+    const response = await fetch('http://localhost:5000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include', // para que la cookie de sesión se maneje automáticamente
+      body: JSON.stringify({
+        mail: formData.email,  // ¡ojo! debe coincidir con el backend
+        password: formData.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Error al iniciar sesión');
+      return;
+    }
+
+    console.log('Usuario logueado:', data.usuari);
+    // Aquí puedes guardar el usuario en estado global, localStorage, etc.
+    onNavigateToHome();
+
+  } catch (error) {
+    console.error('Error en la solicitud:', error);
+    alert('No se pudo conectar con el servidor.');
+  }
+};
+
+  
 
   return (
     <div className="login-container">
@@ -29,7 +59,7 @@ function Login({ onNavigateToHome, onNavigateToRegister }) {
           <button className="login-btn active">Iniciar Sesión</button>
           <button className="register-btn" onClick={onNavigateToRegister}>Registrarse</button>
         </div>
-      </nav> {/* Cierra la etiqueta <nav> aquí */}
+      </nav>
 
       {/* Contenido principal */}
       <main className="login-main">
@@ -56,15 +86,15 @@ function Login({ onNavigateToHome, onNavigateToRegister }) {
               </div>
 
               <div className="form-group">
-                <label htmlFor="dni">DNI</label>
+                <label htmlFor="password">Contraseña</label>
                 <input
-                  type="text"
-                  id="dni"
-                  name="dni"
-                  value={formData.dni}
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
                   onChange={handleChange}
                   required
-                  placeholder="12345678X"
+                  placeholder="••••••••"
                 />
               </div>
             </div>

@@ -8,30 +8,35 @@ from app.Targeta import Targeta  # Importar
 class ControladorUsuari:
     def __init__(self):
         self.cercador = CercadoraUsuari()
-
-    def log(self, message):
-        print(f"CtrlUsuari: [{datetime.datetime.now()}] {message}")
-
-    def execute_login(self,id_dni: str):
-        self.log(f"Intentant login con DNI: {id_dni}")
-        usuari = self.cercador.cerca_per_dni(id_dni)
         
+    def log(self, missatge):
+        print(f"[ControladorUsuari] {missatge}")        
+
+    def execute_login(self, email: str, password: str):
+        self.log(f"Intentant login amb email: {email}")
+        usuari = self.cercador.cerca_per_mail(email)
+
         if usuari is None:
             self.log("Usuari no trobat")
-            return {"error":"Usuari no trobat"}, 404
-        
+            return {"error": "Usuari no trobat"}, 404
+
+        if usuari.getpassword() != password:
+            self.log("Contrasenya incorrecta")
+            return {"error": "Contrasenya incorrecta"}, 401
+
         session['usuari_dni'] = usuari.getDNI()
         self.log(f"Sessió iniciada per {usuari.getNom()}")
-        
-        return{
+
+        return {
             "message": "Login processat correctament",
-            "usuari":{
+            "usuari": {
                 "dni": usuari.getDNI(),
                 "nom": usuari.getNom(),
                 "mail": usuari.getMail(),
                 "saldo": usuari.getSaldo()
             }
-        },200
+        }, 200
+
     
     def modificar_perfil(self, data: dict):
         self.log("Modificant perfil d'usuari...")

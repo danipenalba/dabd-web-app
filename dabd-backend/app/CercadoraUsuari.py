@@ -29,7 +29,8 @@ class CercadoraUsuari:
             dni=data["id_dni"],
             mail=data["mail"],
             nom=data["nom"],
-            saldo=data["saldo"]
+            saldo=data["saldo"],
+            password=data["password"]
         )
 
     def cerca_per_dni(self, dni: str) -> Usuari | None:
@@ -52,7 +53,8 @@ class CercadoraUsuari:
             dni=data["id_dni"],
             mail=data["mail"],
             nom=data["nom"],
-            saldo=data["saldo"]
+            saldo=data["saldo"],
+            password=data["password"]
         )
 
     def existeix_dni(self, dni: str) -> bool:
@@ -89,7 +91,8 @@ class CercadoraUsuari:
                 dni=data["id_dni"],
                 mail=data["mail"],
                 nom=data["nom"],
-                saldo=data["saldo"]
+                saldo=data["saldo"],
+                password=data["password"]
             ))
 
         db.tancar()
@@ -108,7 +111,8 @@ class CercadoraUsuari:
                 dni=data["id_dni"],
                 mail=data["mail"],
                 nom=data["nom"],
-                saldo=data["saldo"]
+                saldo=data["saldo"],
+                password=data["password"]
             ))
 
         db.tancar()
