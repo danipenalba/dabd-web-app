@@ -204,4 +204,4 @@ function Register({ onNavigateToHome, onNavigateToLogin }) {
   );
 }
 
-export default Register;
+export default Register

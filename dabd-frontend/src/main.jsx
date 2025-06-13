@@ -21,13 +21,6 @@ import DFB from './DFBPokal.jsx';
 import Super from './Superliga.jsx';
 import Apostes from './ApostesUsuari.jsx';
 
-
-
-
-
-
-
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -36,25 +29,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/register" element={<Register />} />
         <Route path="/UserProfile" element={<UserProfile />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/main" element={<MainPage />} /> {/* Nueva ruta */}
-        <Route path="/competition/" element={<CompetitionDetail />} /> {/* Nueva ruta */}
-        <Route path="/laliga" element={<LaLigaPage />} /> {/* Nueva ruta */}
-        <Route path="/premier" element={<PremierPage />} /> {/* Nueva ruta */}
-        <Route path="/ligue1" element={<Ligue1 />} /> {/* Nueva ruta */}
-        <Route path="/bundesliga" element={<Bundesliga />} /> {/* Nueva ruta */}
-        <Route path="/coparey" element={<Coparey />} /> {/* Nueva ruta */}
-        <Route path="/facup" element={<FaCup />} /> {/* Nueva ruta */}
-        <Route path="/coupe" element={<Coupe />} /> {/* Nueva ruta */}
-        <Route path="/coppa" element={<Coppa />} /> {/* Nueva ruta */}
-        <Route path="/dfb" element={<DFB />} /> {/* Nueva ruta */}
-        <Route path="/seriea" element={<Seriea />} /> {/* Nueva ruta */}
-        <Route path="/superliga" element={<Super />} /> {/* Nueva ruta */}
-        <Route path="/apostesusuari" element={<Apostes />} /> {/* Nueva ruta */}
-
-
-
-
-
+        <Route path="/main" element={<MainPage />} /> 
+        <Route path="/competition/" element={<CompetitionDetail />} /> 
+        <Route path="/laliga" element={<LaLigaPage />} /> 
+        <Route path="/premier" element={<PremierPage />} /> 
+        <Route path="/ligue1" element={<Ligue1 />} /> 
+        <Route path="/bundesliga" element={<Bundesliga />} /> 
+        <Route path="/coparey" element={<Coparey />} /> 
+        <Route path="/facup" element={<FaCup />} /> 
+        <Route path="/coupe" element={<Coupe />} /> 
+        <Route path="/coppa" element={<Coppa />} /> 
+        <Route path="/dfb" element={<DFB />} /> 
+        <Route path="/seriea" element={<Seriea />} /> 
+        <Route path="/superliga" element={<Super />} /> 
+        <Route path="/apostesusuari" element={<Apostes />} /> 
 
       </Routes>
     </BrowserRouter>
