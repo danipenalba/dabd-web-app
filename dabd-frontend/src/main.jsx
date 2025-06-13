@@ -8,6 +8,22 @@ import UserProfile from './UserProfile.jsx'; // Página de perfil
 import './index.css'; // Si tienes estilos globales
 import MainPage from './MainPage.jsx'; // Importa la nueva página
 import CompetitionDetail from './CompetitionDetail'; // Importa la nueva página
+import LaLigaPage from './LaLigaPage.jsx';
+import PremierPage from './PremierPage.jsx';
+import Ligue1 from './Ligue1.jsx';
+import Seriea from './Seriea.jsx';
+import Bundesliga from './Bundesliga.jsx';
+import Coparey from './Copadelrey.jsx';
+import FaCup from './FAcup.jsx';
+import Coupe from './Coupefrance.jsx';
+import Coppa from './Coppaitalia.jsx';
+import DFB from './DFBPokal.jsx';
+import Super from './Superliga.jsx';
+import Apostes from './ApostesUsuari.jsx';
+
+
+
+
 
 
 
@@ -22,6 +38,22 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/login" element={<Login />} />
         <Route path="/main" element={<MainPage />} /> {/* Nueva ruta */}
         <Route path="/competition/" element={<CompetitionDetail />} /> {/* Nueva ruta */}
+        <Route path="/laliga" element={<LaLigaPage />} /> {/* Nueva ruta */}
+        <Route path="/premier" element={<PremierPage />} /> {/* Nueva ruta */}
+        <Route path="/ligue1" element={<Ligue1 />} /> {/* Nueva ruta */}
+        <Route path="/bundesliga" element={<Bundesliga />} /> {/* Nueva ruta */}
+        <Route path="/coparey" element={<Coparey />} /> {/* Nueva ruta */}
+        <Route path="/facup" element={<FaCup />} /> {/* Nueva ruta */}
+        <Route path="/coupe" element={<Coupe />} /> {/* Nueva ruta */}
+        <Route path="/coppa" element={<Coppa />} /> {/* Nueva ruta */}
+        <Route path="/dfb" element={<DFB />} /> {/* Nueva ruta */}
+        <Route path="/seriea" element={<Seriea />} /> {/* Nueva ruta */}
+        <Route path="/superliga" element={<Super />} /> {/* Nueva ruta */}
+        <Route path="/apostesusuari" element={<Apostes />} /> {/* Nueva ruta */}
+
+
+
+
 
 
       </Routes>

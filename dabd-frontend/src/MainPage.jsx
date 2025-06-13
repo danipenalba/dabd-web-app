@@ -1,267 +1,226 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
-import { Link } from 'react-router-dom';
 
-function MainPage() {
-  // Datos de las competiciones
+// Importar imágenes de competiciones
+import laligaImg from './images/laliga.png';
+import premierImg from './images/premier.png';
+import ligue1Img from './images/ligue1.png';
+import serieaImg from './images/seria.png';
+import bundesligaImg from './images/bundesliga.png';
+import copaReyImg from './images/coparey.png';
+import facupImg from './images/facup.png';
+import coupefranceImg from './images/coupefrance.png';
+import coppaitaliaImg from './images/coppaitalia.png';
+import dfbpokalImg from './images/dfbpokal.jpg';
+import superligaImg from './images/superliga.png';
+
+function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
+  const navigate = useNavigate();
+
   const competitions = [
+    // Ligas Nacionales
     {
-      id: 1,
+      id: 'laliga',
       name: 'LaLiga',
       country: 'España',
-      type: 'liga',
-      image: 'laliga.jpg'
+      type: 'Liga Nacional',
+      image: laligaImg
     },
     {
-      id: 2,
+      id: 'premier',
       name: 'Premier League',
       country: 'Inglaterra',
-      type: 'liga',
-      image: 'premier.jpg'
+      type: 'Liga Nacional',
+      image: premierImg
     },
     {
-      id: 3,
+      id: 'ligue1',
       name: 'Ligue 1',
       country: 'Francia',
-      type: 'liga',
-      image: 'ligue1.jpg'
+      type: 'Liga Nacional',
+      image: ligue1Img
     },
     {
-      id: 4,
+      id: 'seriea',
       name: 'Serie A',
       country: 'Italia',
-      type: 'liga',
-      image: 'seriea.jpg'
+      type: 'Liga Nacional',
+      image: serieaImg
     },
     {
-      id: 5,
+      id: 'bundesliga',
       name: 'Bundesliga',
       country: 'Alemania',
-      type: 'liga',
-      image: 'bundesliga.jpg'
+      type: 'Liga Nacional',
+      image: bundesligaImg
     },
+    // Copas Nacionales
     {
-      id: 6,
+      id: 'coparey',
       name: 'Copa del Rey',
       country: 'España',
-      type: 'copa',
-      image: 'coparey.jpg'
+      type: 'Copa Nacional',
+      image: copaReyImg
     },
     {
-      id: 7,
+      id: 'facup',
       name: 'FA Cup',
       country: 'Inglaterra',
-      type: 'copa',
-      image: 'facup.jpg'
+      type: 'Copa Nacional',
+      image: facupImg
     },
     {
-      id: 8,
+      id: 'coupe',
       name: 'Coupe de France',
       country: 'Francia',
-      type: 'copa',
-      image: 'coupedefrance.jpg'
+      type: 'Copa Nacional',
+      image: coupefranceImg
     },
     {
-      id: 9,
+      id: 'coppa',
       name: 'Coppa Italia',
       country: 'Italia',
-      type: 'copa',
-      image: 'coppaitalia.jpg'
+      type: 'Copa Nacional',
+      image: coppaitaliaImg
     },
     {
-      id: 10,
+      id: 'dfb',
       name: 'DFB-Pokal',
       country: 'Alemania',
-      type: 'copa',
-      image: 'dfbpokal.jpg'
+      type: 'Copa Nacional',
+      image: dfbpokalImg
     },
+    // Superliga Europea
     {
-      id: 11,
+      id: 'superliga',
       name: 'Superliga Europea',
       country: 'Europa',
-      type: 'superliga',
-      image: 'superliga.jpg'
+      type: 'Competición Internacional',
+      image: superligaImg
     }
   ];
 
-  // Estado para controlar la competición seleccionada
-  const [selectedCompetition, setSelectedCompetition] = useState(null);
+  const handleCompetitionClick = (competitionId) => {
+    navigate(`/${competitionId}`);
+  };
 
-  // Filtrar competiciones por tipo
-  const leagues = competitions.filter(c => c.type === 'liga');
-  const cups = competitions.filter(c => c.type === 'copa');
-  const superLeague = competitions.filter(c => c.type === 'superliga');
+  const handleMyBetsClick = () => {
+    navigate('/apostesusuari');
+  };
 
   return (
-    <div className="app-container">
+    <div className="mainpage-container">
       {/* Barra de navegación superior */}
       <nav className="navbar">
-        <div className="logo">EUROBET</div>
+        <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
+          EUROBET
+        </div>
         <div className="nav-buttons">
-          <Link to="/UserProfile" className="profile-btn">Mi Perfil</Link>
-          <button className="logout-btn">Cerrar Sesión</button>
+          <button className="my-bets-btn" onClick={handleMyBetsClick}>
+            Mis Apuestas
+          </button>
+          <button className="logout-btn" onClick={onNavigateToHome}>
+            Cerrar Sesión
+          </button>
         </div>
       </nav>
 
-      <main className="mainpage-content">
-        <div className="mainpage-header">
-          <h1>Bienvenido a EUROBET</h1>
-          <p>Selecciona una competición para ver los partidos disponibles</p>
+      {/* Contenido principal */}
+      <main className="main-content">
+        <div className="welcome-section">
+          <h1>BIENVENIDO A EUROBET</h1>
+          <h2>Selecciona una competición para comenzar a apostar</h2>
         </div>
 
-        {/* Sección de Ligas Nacionales */}
+        {/* Sección de Partidos */}
         <section className="competitions-section">
-          <h2>Ligas Nacionales</h2>
-          <div className="competitions-grid">
-            {leagues.map(league => (
-              <div 
-                key={league.id} 
-                className="competition-card"
-                onClick={() => setSelectedCompetition(league)}
-              >
-                <div className="competition-image">
-                  <img 
-                    src={`./images/${league.image}`} 
-                    alt={league.name}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = './images/placeholder.jpg';
-                    }}
-                  />
-                </div>
-                <div className="competition-info">
-                  <h3>{league.name}</h3>
-                  <span>{league.country}</span>
-                </div>
-              </div>
-            ))}
+          <div className="section-header">
+            <h3>COMPETICIONES DISPONIBLES</h3>
           </div>
-        </section>
 
-        {/* Sección de Copas Nacionales */}
-        <section className="competitions-section">
-          <h2>Copas Nacionales</h2>
-          <div className="competitions-grid">
-            {cups.map(cup => (
-              <div 
-                key={cup.id} 
-                className="competition-card"
-                onClick={() => setSelectedCompetition(cup)}
-              >
-                <div className="competition-image">
-                  <img 
-                    src={`./images/${cup.image}`} 
-                    alt={cup.name}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = './images/placeholder.jpg';
-                    }}
-                  />
-                </div>
-                <div className="competition-info">
-                  <h3>{cup.name}</h3>
-                  <span>{cup.country}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Sección de Superliga Europea */}
-        <section className="competitions-section">
-          <h2>Superliga Europea</h2>
-          <div className="competitions-grid">
-            {superLeague.map(sl => (
-              <div 
-                key={sl.id} 
-                className="competition-card"
-                onClick={() => setSelectedCompetition(sl)}
-              >
-                <div className="competition-image">
-                  <img 
-                    src={`./images/${sl.image}`} 
-                    alt={sl.name}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = './images/placeholder.jpg';
-                    }}
-                  />
-                </div>
-                <div className="competition-info">
-                  <h3>{sl.name}</h3>
-                  <span>{sl.country}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Sección de Mis Apuestas */}
-        <section className="my-bets-section">
-          <Link to="/MyBets" className="my-bets-link">
-            <div className="my-bets-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div className="my-bets-info">
-              <h2>Mis Apuestas</h2>
-              <p>Revisa el historial y estado de tus apuestas</p>
-            </div>
-          </Link>
-        </section>
-
-        {/* Modal para la competición seleccionada */}
-        {selectedCompetition && (
-          <div className="modal-overlay" onClick={() => setSelectedCompetition(null)}>
-            <div className="competition-modal" onClick={e => e.stopPropagation()}>
-              <button className="close-modal" onClick={() => setSelectedCompetition(null)}>
-                &times;
-              </button>
-              <div className="modal-header">
-                <div className="modal-image">
-                  <img 
-                    src={`./images/${selectedCompetition.image}`} 
-                    alt={selectedCompetition.name}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = './images/placeholder.jpg';
-                    }}
-                  />
-                </div>
-                <h2>{selectedCompetition.name}</h2>
-                <p>{selectedCompetition.country}</p>
-              </div>
-              <div className="modal-content">
-                <p>Próximos partidos:</p>
-                <div className="match-list">
-                  <div className="match-item">
-                    <div className="team">
-                      <span>Equipo A</span>
-                    </div>
-                    <div className="vs">VS</div>
-                    <div className="team">
-                      <span>Equipo B</span>
-                    </div>
-                    <div className="match-time">Hoy 20:45</div>
-                    <button className="bet-btn">Ver cuotas</button>
+          {/* Ligas Nacionales */}
+          <div className="competition-category">
+            <h4>LIGAS NACIONALES</h4>
+            <div className="competitions-grid">
+              {competitions.filter(comp => comp.type === 'Liga Nacional').map(competition => (
+                <div 
+                  key={competition.id} 
+                  className="competition-card"
+                  onClick={() => handleCompetitionClick(competition.id)}
+                >
+                  <div className="competition-image">
+                    <img src={competition.image} alt={competition.name} />
                   </div>
-                  <div className="match-item">
-                    <div className="team">
-                      <span>Equipo C</span>
-                    </div>
-                    <div className="vs">VS</div>
-                    <div className="team">
-                      <span>Equipo D</span>
-                    </div>
-                    <div className="match-time">Mañana 18:30</div>
-                    <button className="bet-btn">Ver cuotas</button>
+                  <div className="competition-info">
+                    <h5>{competition.name}</h5>
+                    <span>{competition.country}</span>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        )}
+
+          {/* Copas Nacionales */}
+          <div className="competition-category">
+            <h4>COPAS NACIONALES</h4>
+            <div className="competitions-grid">
+              {competitions.filter(comp => comp.type === 'Copa Nacional').map(competition => (
+                <div 
+                  key={competition.id} 
+                  className="competition-card"
+                  onClick={() => handleCompetitionClick(competition.id)}
+                >
+                  <div className="competition-image">
+                    <img src={competition.image} alt={competition.name} />
+                  </div>
+                  <div className="competition-info">
+                    <h5>{competition.name}</h5>
+                    <span>{competition.country}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Superliga Europea */}
+          <div className="competition-category">
+            <h4>COMPETICIÓN INTERNACIONAL</h4>
+            <div className="competitions-grid single-competition">
+              {competitions.filter(comp => comp.type === 'Competición Internacional').map(competition => (
+                <div 
+                  key={competition.id} 
+                  className="competition-card superliga-card"
+                  onClick={() => handleCompetitionClick(competition.id)}
+                >
+                  <div className="competition-image">
+                    <img src={competition.image} alt={competition.name} />
+                  </div>
+                  <div className="competition-info">
+                    <h5>{competition.name}</h5>
+                    <span>15 mejores equipos europeos</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Sección Mis Apuestas - Acceso rápido */}
+        <section className="quick-access-section">
+          <div className="quick-access-card" onClick={handleMyBetsClick}>
+            <div className="quick-access-icon">
+              📊
+            </div>
+            <div className="quick-access-info">
+              <h4>MIS APUESTAS</h4>
+              <span>Consulta tus apuestas activas y historial</span>
+            </div>
+            <div className="quick-access-arrow">
+              →
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
