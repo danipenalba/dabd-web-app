@@ -14,12 +14,17 @@ def hello():
 @main.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data or 'mail' not in data or 'password' not in data:
-        return jsonify({"error": "Falten els camps 'mail' i/o 'password'."}), 400
+    if not data or 'dni' not in data or 'password' not in data:
+        return jsonify({"error": "Faltan los campos 'dni' y/o 'password'."}), 400
+
+    # Validación básica del formato del DNI
+    dni = data.get('dni', '').upper()  # Convertir a mayúsculas
+    if len(dni) != 9 or not dni[:8].isdigit() or not dni[8].isalpha():
+        return jsonify({"error": "Formato de DNI inválido. Debe ser 8 números seguidos de una letra"}), 400
 
     ctrl = ControladorUsuari()
     result, status_code = ctrl.execute_login(
-        email=data.get('mail'),
+        dni=dni,
         password=data.get('password')
     )
     return result, status_code
@@ -50,7 +55,24 @@ def modificar_perfil():
     return result, status_code
 
 
-@main.route('/partits', methods=['GET'])
-def obtenir_partits():
-    ctrl = ControladorPartit()
-    return ctrl.obtenir_partits()
+@main.route('/usuari', methods=['DELETE'])
+def eliminar_usuari():
+    # Verificar que el Content-Type es correcto
+    if request.content_type != 'application/json':
+        return jsonify({"error": "Content-Type debe ser application/json"}), 415
+    
+    # Verificar que hay datos JSON
+    try:
+        data = request.get_json()
+    except:
+        return jsonify({"error": "JSON malformado"}), 400
+        
+    if not data or 'password' not in data:
+        return jsonify({"error": "Se requiere la contraseña"}), 400
+    
+    # Verificar sesión
+    if 'usuari_dni' not in session:
+        return jsonify({"error": "No autenticado"}), 401
+    
+    ctrl = ControladorUsuari()
+    return ctrl.eliminar_usuari(data['password'])

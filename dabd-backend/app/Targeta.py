@@ -65,3 +65,28 @@ class Targeta:
         finally:
             db.tancar()
         return None
+    
+
+    def elimina(self):
+        db = ConnexioBD()
+        try:
+            self.log(f"🔄 Eliminando tarjeta del usuario {self.usuari_id}...")
+            
+            # Verificar que la tarjeta existe
+            query_check = "SELECT id_num_targ FROM targeta WHERE usuari_id = %s"
+            result = db.executarConsulta(query_check, (self.usuari_id,))
+            if not result:
+                self.log(f"❌ No se encontró tarjeta para el usuario {self.usuari_id}")
+                return False
+                
+            # Eliminar tarjeta
+            query_delete = "DELETE FROM targeta WHERE usuari_id = %s"
+            db.executarComanda(query_delete, (self.usuari_id,))
+            self.log(f"✅ Tarjeta del usuario {self.usuari_id} eliminada correctamente")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Error al eliminar tarjeta: {str(e)}")
+            return False
+        finally:
+            db.tancar()

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './UserProfile.css';
-import fondo from './images/fondo.jpg';
 
 function UserProfile() {
   const [userData, setUserData] = useState({
@@ -15,28 +14,138 @@ function UserProfile() {
     cvc: '***'
   });
 
-  const [editing, setEditing] = useState({
-    name: false,
-    email: false,
-    dni: false,
-    cardNumber: false,
-    cardExpiry: false,
-    cardCvc: false
-  });
-
+  const [editing, setEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleChange = (field, value, isCard = false) => {
     if (isCard) {
-      setCardData({ ...cardData, [field]: value });
+      setCardData(prev => ({ ...prev, [field]: value }));
     } else {
-      setUserData({ ...userData, [field]: value });
+      setUserData(prev => ({ ...prev, [field]: value }));
     }
   };
 
-  const toggleEdit = (field) => {
-    setEditing({ ...editing, [field]: !editing[field] });
+  const handleSaveAll = async () => {
+    const payload = {
+      nom: userData.name,
+      mail: userData.email,
+      dni: userData.dni,
+      targeta: {
+        number: cardData.number,
+        expiry: cardData.expiry,
+        cvc: cardData.cvc
+      }
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/perfil', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          credentials: 'include'
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("✅ Todos los cambios guardados correctamente");
+        setEditing(false);
+      } else {
+        alert("❌ Error: " + result.error);
+      }
+    } catch (error) {
+      console.error("❌ Error al guardar:", error);
+      alert("❌ Error de red al guardar cambios.");
+    }
   };
+
+  const handleDeleteAccount = async () => {
+    if (!password) {
+      setDeleteError('Por favor ingresa tu contraseña');
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/usuari', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          credentials: 'include'
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Cuenta eliminada correctamente");
+        window.location.href = '/login';
+      } else {
+        setDeleteError(result.error || "Error al eliminar la cuenta");
+      }
+    } catch (error) {
+      setDeleteError("Error de conexión con el servidor");
+      console.error("Error al eliminar cuenta:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleEdit = () => {
+    setEditing(!editing);
+  };
+
+  const DeleteConfirmationModal = () => (
+    <div className="modal-overlay">
+      <div className="confirmation-modal">
+        <h3>¿Seguro que quieres eliminar tu cuenta?</h3>
+        <p>Esta acción no se puede deshacer y perderás todos tus datos.</p>
+        
+        <div className="password-input-group">
+          <label htmlFor="delete-password">Confirma tu contraseña:</label>
+          <input
+            id="delete-password"
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setDeleteError('');
+            }}
+            placeholder="Ingresa tu contraseña"
+          />
+          {deleteError && <p className="error-message">{deleteError}</p>}
+        </div>
+
+        <div className="modal-buttons">
+          <button
+            className="cancel-btn"
+            onClick={() => {
+              setShowDeleteModal(false);
+              setPassword('');
+              setDeleteError('');
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            className="confirm-delete-btn"
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Eliminando...' : 'Confirmar eliminación'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="app-container">
@@ -50,80 +159,88 @@ function UserProfile() {
       <main className="profile-container">
         <div className="profile-card">
           <h2>MI PERFIL</h2>
-          
-          {/* Información del usuario */}
+
           <div className="profile-section">
             <h3>Datos Personales</h3>
-            <ProfileField 
-              label="Nombre" 
-              value={userData.name} 
+            <ProfileField
+              label="Nombre"
+              value={userData.name}
               field="name"
-              editing={editing.name}
+              editing={editing}
               onChange={handleChange}
-              toggleEdit={toggleEdit}
+              isCard={false}
             />
-            
-            <ProfileField 
-              label="Email" 
-              value={userData.email} 
+            <ProfileField
+              label="Email"
+              value={userData.email}
               field="email"
-              editing={editing.email}
+              editing={editing}
               onChange={handleChange}
-              toggleEdit={toggleEdit}
+              isCard={false}
             />
-            
-            <ProfileField 
-              label="DNI" 
-              value={userData.dni} 
+            <ProfileField
+              label="DNI"
+              value={userData.dni}
               field="dni"
-              editing={editing.dni}
+              editing={editing}
               onChange={handleChange}
-              toggleEdit={toggleEdit}
+              isCard={false}
             />
           </div>
-          
-          {/* Información de la tarjeta */}
+
           <div className="card-section">
             <h3>Datos de Tarjeta</h3>
-            <ProfileField 
-              label="Número de tarjeta" 
-              value={cardData.number} 
+            <ProfileField
+              label="Número de tarjeta"
+              value={cardData.number}
               field="number"
-              editing={editing.cardNumber}
+              editing={editing}
               onChange={(field, value) => handleChange(field, value, true)}
-              toggleEdit={toggleEdit}
               isCard={true}
-              masked={!editing.cardNumber}
+              masked={!editing}
             />
-            
             <div className="card-row">
-              <ProfileField 
-                label="Caducidad" 
-                value={cardData.expiry} 
+              <ProfileField
+                label="Caducidad"
+                value={cardData.expiry}
                 field="expiry"
-                editing={editing.cardExpiry}
+                editing={editing}
                 onChange={(field, value) => handleChange(field, value, true)}
-                toggleEdit={toggleEdit}
                 isCard={true}
-                masked={!editing.cardExpiry}
+                masked={!editing}
                 small={true}
               />
-              
-              <ProfileField 
-                label="CVC" 
-                value={cardData.cvc} 
+              <ProfileField
+                label="CVC"
+                value={cardData.cvc}
                 field="cvc"
-                editing={editing.cardCvc}
+                editing={editing}
                 onChange={(field, value) => handleChange(field, value, true)}
-                toggleEdit={toggleEdit}
                 isCard={true}
-                masked={!editing.cardCvc}
+                masked={!editing}
                 small={true}
               />
             </div>
           </div>
-          
-          <button 
+
+          <div className="form-actions">
+            {editing ? (
+              <>
+                <button className="save-all-btn" onClick={handleSaveAll}>
+                  Guardar todos los cambios
+                </button>
+                <button className="cancel-btn" onClick={toggleEdit}>
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <button className="edit-all-btn" onClick={toggleEdit}>
+                Modificar datos
+              </button>
+            )}
+          </div>
+
+          <button
             className="delete-btn"
             onClick={() => setShowDeleteModal(true)}
           >
@@ -132,58 +249,38 @@ function UserProfile() {
         </div>
       </main>
 
-      {/* Modal de confirmación para eliminar cuenta */}
-      {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="confirmation-modal">
-            <h3>¿Seguro que quieres eliminar tu cuenta?</h3>
-            <p>Esta acción no se puede deshacer y perderás todos tus datos.</p>
-            <div className="modal-buttons">
-              <button 
-                className="cancel-btn"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancelar
-              </button>
-              <button 
-                className="confirm-delete-btn"
-                onClick={() => alert('Cuenta eliminada (acción simulada)')}
-              >
-                Sí, eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {showDeleteModal && <DeleteConfirmationModal />}
     </div>
   );
 }
 
-// Componente reutilizable para campos editables
-const ProfileField = ({ label, value, field, editing, onChange, toggleEdit, isCard, masked, small }) => {
+const ProfileField = React.memo(({ label, value, field, editing, onChange, isCard, masked, small }) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+
   return (
     <div className={`profile-field ${small ? 'small-field' : ''}`}>
       <label>{label}</label>
       <div className="field-content">
         {editing ? (
           <input
+            ref={inputRef}
             type={field === 'cvc' || field === 'number' ? 'password' : 'text'}
             value={value}
-            onChange={(e) => onChange(field, e.target.value)}
+            onChange={(e) => onChange(field, e.target.value, isCard)}
             className={isCard ? 'card-input' : ''}
           />
         ) : (
           <span className={masked ? 'masked' : ''}>{value}</span>
         )}
-        <button 
-          className={`edit-btn ${editing ? 'save-btn' : ''}`}
-          onClick={() => toggleEdit(field)}
-        >
-          {editing ? 'Guardar' : 'Modificar'}
-        </button>
       </div>
     </div>
   );
-};
+});
 
 export default UserProfile;

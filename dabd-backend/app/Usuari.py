@@ -64,6 +64,30 @@ class Usuari:
             return False
         finally:
             db.tancar()
+    
+    def elimina(self):
+        db = ConnexioBD()
+        try:
+            self.log(f"🔄 Eliminando usuario {self._dni}...")
+            
+            # Verificar que el usuario existe antes de eliminar
+            query_check = "SELECT id_dni FROM usuari WHERE id_dni = %s"
+            result = db.executarConsulta(query_check, (self._dni,))
+            if not result:
+                self.log(f"❌ Usuario con DNI {self._dni} no encontrado")
+                return False
+                
+            # Eliminar usuario
+            query_delete = "DELETE FROM usuari WHERE id_dni = %s"
+            db.executarComanda(query_delete, (self._dni,))
+            self.log(f"✅ Usuario {self._dni} eliminado correctamente")
+            return True
+            
+        except Exception as e:
+            self.log(f"❌ Error al eliminar usuario {self._dni}: {str(e)}")
+            return False
+        finally:
+            db.tancar()
 
     # Logging interno simple
     def log(self, missatge):

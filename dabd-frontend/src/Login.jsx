@@ -3,52 +3,59 @@ import './Login.css';
 
 function Login({ onNavigateToHome, onNavigateToRegister }) {
   const [formData, setFormData] = useState({
-    email: '',
+    dni: '',
     password: ''
   });
+
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError(''); // Limpiar errores al cambiar los campos
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log('Datos del login:', formData);
+    e.preventDefault();
+    setError(''); // Resetear mensajes de error
 
-  try {
-    const response = await fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include', // para que la cookie de sesión se maneje automáticamente
-      body: JSON.stringify({
-        mail: formData.email,  // ¡ojo! debe coincidir con el backend
-        password: formData.password
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.error || 'Error al iniciar sesión');
+    // Validación básica del DNI (8 números + letra)
+    const dniRegex = /^[0-9]{8}[A-Za-z]$/;
+    if (!dniRegex.test(formData.dni)) {
+      setError('El DNI debe tener 8 números seguidos de una letra');
       return;
     }
 
-    console.log('Usuario logueado:', data.usuari);
-    // Aquí puedes guardar el usuario en estado global, localStorage, etc.
-    onNavigateToHome();
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          dni: formData.dni.toUpperCase(), // Convertir a mayúsculas
+          password: formData.password
+        })
+      });
 
-  } catch (error) {
-    console.error('Error en la solicitud:', error);
-    alert('No se pudo conectar con el servidor.');
-  }
-};
+      const data = await response.json();
 
-  
+      if (!response.ok) {
+        setError(data.error || 'Error al iniciar sesión');
+        return;
+      }
+
+      console.log('Usuario logueado:', data.usuari);
+      onNavigateToHome();
+
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+      setError('No se pudo conectar con el servidor');
+    }
+  };
 
   return (
     <div className="login-container">
@@ -72,16 +79,21 @@ function Login({ onNavigateToHome, onNavigateToRegister }) {
             <div className="form-section">
               <h3>DATOS DE ACCESO</h3>
 
+              {error && <div className="error-message">{error}</div>}
+
               <div className="form-group">
-                <label htmlFor="email">Correo electrónico</label>
+                <label htmlFor="dni">DNI</label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  id="dni"
+                  name="dni"
+                  value={formData.dni}
                   onChange={handleChange}
                   required
-                  placeholder="tu@email.com"
+                  placeholder="12345678X"
+                  maxLength="9"
+                  pattern="[0-9]{8}[A-Za-z]"
+                  title="8 números seguidos de una letra"
                 />
               </div>
 
@@ -95,6 +107,7 @@ function Login({ onNavigateToHome, onNavigateToRegister }) {
                   onChange={handleChange}
                   required
                   placeholder="••••••••"
+                  minLength="8"
                 />
               </div>
             </div>
