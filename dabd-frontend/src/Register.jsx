@@ -19,11 +19,29 @@ function Register({ onNavigateToHome, onNavigateToLogin }) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Datos del registro:', formData);
-    // Aquí puedes agregar la lógica para enviar los datos
+  
+    try {
+      const response = await fetch('http://localhost:5000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        alert("✅ Registro exitoso. ¡Bienvenido!");
+        onNavigateToLogin();  // Redirige al login
+      } else {
+        alert("❌ Error: " + result.error);
+      }
+    } catch (error) {
+      alert("❌ Error en la conexión con el servidor.");
+      console.error(error);
+    }
   };
+  
 
   return (
     <div className="register-container">
@@ -120,15 +138,14 @@ function Register({ onNavigateToHome, onNavigateToLogin }) {
                 <div className="form-group">
                   <label htmlFor="fechaCaducidad">Fecha de caducidad</label>
                   <input
-                    type="text"
+                    type="date"
                     id="fechaCaducidad"
                     name="fechaCaducidad"
                     value={formData.fechaCaducidad}
                     onChange={handleChange}
                     required
-                    placeholder="MM/AA"
-                    maxLength="5"
                   />
+
                 </div>
                 
                 <div className="form-group">

@@ -24,6 +24,22 @@ def login():
     )
     return result, status_code
 
+@main.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    print("[DEBUG] Datos recibidos en /register:", data)
+
+    ctrl = ControladorUsuari()
+    result, status_code = ctrl.execute_register(
+        dni=data.get('dni'),
+        mail=data.get('email'),
+        nom=data.get('nombre'),
+        password=data.get('password'),
+        num_targeta=data.get('numeroTarjeta'),
+        data_cad=data.get('fechaCaducidad'),
+        cvc=data.get('cvc')
+    )
+    return jsonify(result), status_code
 
 
 @main.route('/perfil', methods=['PUT'])

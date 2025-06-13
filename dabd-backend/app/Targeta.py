@@ -11,6 +11,24 @@ class Targeta:
     def log(self, message):
         print(f"Targeta: [{datetime.datetime.now()}] {message}")
 
+    def insereix(self):
+        db = ConnexioBD()
+        try:
+            self.log(f"🔄 Insertant targeta per usuari {self.usuari_id}...")
+
+            query = """
+                INSERT INTO targeta (id_num_targ, data_cad, cvc, usuari_id)
+                VALUES (%s, %s, %s, %s)
+            """
+            db.executarComanda(query, (self.id_num_targ, self.data_cad, self.cvc, self.usuari_id))
+            self.log("✅ Targeta inserida correctament.")
+            return True
+        except Exception as e:
+            self.log(f"❌ Error al inserir: {e}")
+            return False
+        finally:
+            db.tancar()
+
     def modifica(self):
         db = ConnexioBD()
         try:

@@ -37,6 +37,21 @@ class ControladorUsuari:
             }
         }, 200
 
+    def execute_register(self, dni, mail, nom, password, num_targeta, data_cad, cvc):
+        print(f"[DEBUG] execute_register recibidos: dni={dni}, mail={mail}, nom={nom}, password={'*' * len(password) if password else None}, num_targeta={num_targeta}, data_cad={data_cad}, cvc={cvc}")
+        try:
+            usuari = Usuari(dni=dni, mail=mail, nom=nom, password=password)
+            if not usuari.insereix():
+                return {"error": "Error al registrar el usuario"}, 500
+
+            targeta = Targeta(id_num_targ=num_targeta, data_cad=data_cad, cvc=cvc, usuari_id=dni)
+            if not targeta.insereix():
+                return {"error": "Usuario creado, pero error al registrar la tarjeta"}, 500
+
+            return {"message": "Registro exitoso"}, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
+
     
     def modificar_perfil(self, data: dict):
         self.log("Modificant perfil d'usuari...")

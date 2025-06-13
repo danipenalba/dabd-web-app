@@ -13,7 +13,7 @@ class Usuari:
     def getMail(self): return self._mail
     def getNom(self): return self._nom
     def getSaldo(self): return self._saldo
-    def getpassword(self): return self._password  # cuidado: el backend espera "getpassword" (no getPassword)
+    def getpassword(self): return self._password  # backend espera este nombre
 
     # Setters
     def setMail(self, mail): self._mail = mail
@@ -26,8 +26,14 @@ class Usuari:
         db = ConnexioBD()
         try:
             self.log("🔄 Insertando usuario...")
+            self.log(f"Datos a insertar - DNI: {self._dni}, Mail: {self._mail}, Nombre: {self._nom}, Saldo: {self._saldo}, Password: {'*' * len(self._password) if self._password else 'None'}")
+            
+            if not self._dni or not self._mail or not self._nom or not self._password:
+                self.log("❌ Error: campos obligatorios (dni, mail, nom, password) no pueden estar vacíos.")
+                return False
+            
             query = """
-                INSERT INTO usuari (id_dni, mail, nom, saldo, contrasenya)
+                INSERT INTO usuari (id_dni, mail, nom, saldo, password)
                 VALUES (%s, %s, %s, %s, %s)
             """
             db.executarComanda(query, (self._dni, self._mail, self._nom, self._saldo, self._password))
@@ -39,6 +45,7 @@ class Usuari:
         finally:
             db.tancar()
 
+
     # Modificar datos del usuario
     def modifica(self):
         db = ConnexioBD()
@@ -46,7 +53,7 @@ class Usuari:
             self.log(f"🔄 Modificando usuario {self._dni}...")
             query = """
                 UPDATE usuari
-                SET mail = %s, nom = %s, saldo = %s, contrasenya = %s
+                SET mail = %s, nom = %s, saldo = %s, password = %s
                 WHERE id_dni = %s
             """
             db.executarComanda(query, (self._mail, self._nom, self._saldo, self._password, self._dni))
