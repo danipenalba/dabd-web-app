@@ -1,67 +1,64 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
-function Login({ onNavigateToHome, onNavigateToRegister }) {
+function Login({ onNavigateToRegister }) {
   const [formData, setFormData] = useState({
     dni: '',
     password: ''
   });
 
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Limpiar errores al cambiar los campos
+    setError('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); // Resetear mensajes de error
+  // En tu función handleSubmit del Login.jsx
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    const response = await fetch('http://localhost:5000/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // Para cookies
+      body: JSON.stringify({
+        dni: formData.dni.toUpperCase(),
+        password: formData.password
+      })
+    });
 
-    // Validación básica del DNI (8 números + letra)
-    const dniRegex = /^[0-9]{8}[A-Za-z]$/;
-    if (!dniRegex.test(formData.dni)) {
-      setError('El DNI debe tener 8 números seguidos de una letra');
-      return;
+    const data = await response.json();
+
+    if (response.ok) {
+      // Guarda los datos importantes en sessionStorage
+      sessionStorage.setItem('userData', JSON.stringify({
+        dni: data.usuari.dni,
+        nom_usuari: data.usuari.nom_usuari,
+        email: data.usuari.email
+      }));
+      
+      // Redirige a MainPage
+      navigate('/main');
+    } else {
+      setError(data.error || 'Error al iniciar sesión');
     }
-
-    try {
-      const response = await fetch('http://localhost:5000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          dni: formData.dni.toUpperCase(), // Convertir a mayúsculas
-          password: formData.password
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Error al iniciar sesión');
-        return;
-      }
-
-      console.log('Usuario logueado:', data.usuari);
-      onNavigateToHome();
-
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
-      setError('No se pudo conectar con el servidor');
-    }
-  };
+  } catch (error) {
+    setError('Error de conexión con el servidor');
+  }
+};
 
   return (
     <div className="login-container">
       {/* Barra de navegación superior */}
       <nav className="navbar">
-        <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>EUROBET</div>
+        <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>EUROBET</div>
         <div className="nav-buttons">
           <button className="login-btn active">Iniciar Sesión</button>
           <button className="register-btn" onClick={onNavigateToRegister}>Registrarse</button>

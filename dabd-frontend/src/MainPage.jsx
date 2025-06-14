@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
 
@@ -15,8 +15,46 @@ import coppaitaliaImg from './images/coppaitalia.png';
 import dfbpokalImg from './images/dfbpokal.jpg';
 import superligaImg from './images/superliga.png';
 
-function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
+function MainPage({ onNavigateToHome }) {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Verificar sesión al cargar el componente
+  useEffect(() => {
+    const verifySession = async () => {
+      try {
+        // 1. Verificar sessionStorage primero
+        const storedUser = sessionStorage.getItem('userData');
+        
+        if (storedUser) {
+          setUserData(JSON.parse(storedUser));
+          setIsLoading(false);
+          return;
+        }
+
+        // 2. Si no hay en sessionStorage, verificar con el backend
+        const response = await fetch('http://localhost:5000/verify-session', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          sessionStorage.setItem('userData', JSON.stringify(data.user));
+          setUserData(data.user);
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error verificando sesión:', error);
+        navigate('/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifySession();
+  }, [navigate]);
 
   const competitions = [
     // Ligas Nacionales
@@ -109,6 +147,38 @@ function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
     navigate('/apostesusuari');
   };
 
+  const handleProfileClick = () => {
+    navigate('/UserProfile');
+  };
+
+  const handleLogout = async () => {
+    try {
+      // 1. Cerrar sesión en el backend
+      await fetch('http://localhost:5000/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // 2. Limpiar el frontend
+      sessionStorage.removeItem('userData');
+      setUserData(null);
+      
+      // 3. Redirigir al home
+      onNavigateToHome();
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Verificando sesión...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mainpage-container">
       {/* Barra de navegación superior */}
@@ -116,13 +186,23 @@ function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
         <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
           EUROBET
         </div>
-        <div className="nav-buttons">
-          <button className="my-bets-btn" onClick={handleMyBetsClick}>
-            Mis Apuestas
-          </button>
-          <button className="logout-btn" onClick={onNavigateToHome}>
-            Cerrar Sesión
-          </button>
+        <div className="user-nav-section">
+          {userData && (
+            <span className="welcome-user">
+              <i className="fas fa-user"></i> {userData.nom_usuari || userData.dni}
+            </span>
+          )}
+          <div className="nav-buttons">
+            <button className="profile-btn" onClick={handleProfileClick}>
+              <i className="fas fa-user-circle"></i> Mi Perfil
+            </button>
+            <button className="my-bets-btn" onClick={handleMyBetsClick}>
+              <i className="fas fa-ticket-alt"></i> Mis Apuestas
+            </button>
+            <button className="logout-btn" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -210,14 +290,14 @@ function MainPage({ onNavigateToHome, onNavigateToMyBets }) {
         <section className="quick-access-section">
           <div className="quick-access-card" onClick={handleMyBetsClick}>
             <div className="quick-access-icon">
-              📊
+              <i className="fas fa-chart-bar"></i>
             </div>
             <div className="quick-access-info">
               <h4>MIS APUESTAS</h4>
               <span>Consulta tus apuestas activas y historial</span>
             </div>
             <div className="quick-access-arrow">
-              →
+              <i className="fas fa-chevron-right"></i>
             </div>
           </div>
         </section>

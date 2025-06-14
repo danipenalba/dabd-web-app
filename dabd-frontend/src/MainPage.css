@@ -379,3 +379,108 @@
     padding: 2rem 3% 1rem;
   }
 }
+
+/* Añadir esto en la sección de estilos de los botones de navegación */
+.profile-btn {
+  background: transparent;
+  color: var(--light);
+  border: 2px solid var(--light);
+  margin-left: 1rem;
+  padding: 0.8rem 1.8rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Ajustar el orden de los botones en móviles */
+@media (max-width: 768px) {
+  .nav-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .nav-buttons button {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+/* Estilos para los botones de navegación */
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-buttons button {
+  margin-left: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-btn {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--secondary);
+  border: 2px solid var(--secondary) !important;
+}
+
+.profile-btn:hover {
+  background: rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+.my-bets-btn {
+  background: transparent;
+  color: var(--light);
+  border: 2px solid var(--light) !important;
+}
+
+.my-bets-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  background-color: var(--accent);
+  color: var(--light);
+}
+
+.logout-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* Iconos Font Awesome */
+.nav-buttons button i {
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .nav-buttons button {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    padding: 0.7rem 1rem;
+  }
+}
