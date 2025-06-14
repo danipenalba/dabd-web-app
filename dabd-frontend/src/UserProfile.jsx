@@ -3,15 +3,15 @@ import './UserProfile.css';
 
 function UserProfile() {
   const [userData, setUserData] = useState({
-    name: 'Juan Pérez',
-    email: 'juan.perez@example.com',
-    dni: '12345678A'
+    name: '',
+    email: '',
+    dni: ''
   });
 
   const [cardData, setCardData] = useState({
-    number: '**** **** **** 1234',
-    expiry: '12/25',
-    cvc: '***'
+    number: '',
+    expiry: '',
+    cvc: ''
   });
 
   const [editing, setEditing] = useState(false);
@@ -19,6 +19,44 @@ function UserProfile() {
   const [password, setPassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/infoUsuari', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          setUserData({
+            name: data.nom || '',
+            email: data.mail || '',
+            dni: data.dni || ''
+          });
+
+          if (data.targeta) {
+            setCardData({
+              number: data.targeta.id_num_targ || '',
+              expiry: data.targeta.data_cad ? new Date(data.targeta.data_cad).toISOString().slice(0,10) : '', // formato 'YYYY-MM-DD'
+              cvc: data.targeta.cvc || ''
+            });
+          }
+        } else {
+          console.error('❌ Error al obtener los datos del usuario');
+        }
+      } catch (error) {
+        console.error('❌ Error de red:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const handleChange = (field, value, isCard = false) => {
     if (isCard) {
@@ -45,8 +83,8 @@ function UserProfile() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          credentials: 'include'
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
@@ -78,8 +116,8 @@ function UserProfile() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          credentials: 'include'
         },
+        credentials: 'include',
         body: JSON.stringify({ password }),
       });
 
@@ -108,7 +146,7 @@ function UserProfile() {
       <div className="confirmation-modal">
         <h3>¿Seguro que quieres eliminar tu cuenta?</h3>
         <p>Esta acción no se puede deshacer y perderás todos tus datos.</p>
-        
+
         <div className="password-input-group">
           <label htmlFor="delete-password">Confirma tu contraseña:</label>
           <input
@@ -185,6 +223,7 @@ function UserProfile() {
               editing={editing}
               onChange={handleChange}
               isCard={false}
+              disabled={true}
             />
           </div>
 
@@ -254,7 +293,7 @@ function UserProfile() {
   );
 }
 
-const ProfileField = React.memo(({ label, value, field, editing, onChange, isCard, masked, small }) => {
+const ProfileField = React.memo(({ label, value, field, editing, onChange, isCard, masked, small, disabled }) => {
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -274,6 +313,7 @@ const ProfileField = React.memo(({ label, value, field, editing, onChange, isCar
             value={value}
             onChange={(e) => onChange(field, e.target.value, isCard)}
             className={isCard ? 'card-input' : ''}
+            disabled={disabled}
           />
         ) : (
           <span className={masked ? 'masked' : ''}>{value}</span>

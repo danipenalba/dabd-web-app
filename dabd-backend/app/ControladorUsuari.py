@@ -57,7 +57,7 @@ class ControladorUsuari:
     
     def modificar_perfil(self, data: dict):
         self.log("Modificant perfil d'usuari...")
-        
+
         # 1. Verificación de sesión
         dni = session.get("usuari_dni")
         if not dni:
@@ -69,18 +69,16 @@ class ControladorUsuari:
             return {"error": "Usuari no trobat"}, 404
 
         # 3. Actualización de datos del usuario
+        if 'dni' in data and data['dni'] != dni:
+            # No permitir modificar el DNI, devolver error directamente
+            return {"error": "No es pot modificar el DNI"}, 400
+
         usuario_actualizado = False
         if 'mail' in data:
             usuari.setMail(data['mail'])
             usuario_actualizado = True
         if 'nom' in data:
             usuari.setNom(data['nom'])
-            usuario_actualizado = True
-        if 'dni' in data:
-            # Recomiendo no permitir cambiar el DNI por posibles inconsistencias
-            if data['dni'] != dni:
-                return {"error": "No es pot modificar el DNI"}, 400
-            usuari.setDNI(data['dni'])
             usuario_actualizado = True
 
         if usuario_actualizado and not usuari.modifica():
@@ -90,7 +88,7 @@ class ControladorUsuari:
         if 'targeta' in data:
             tdata = data['targeta']
             targeta = Targeta.obtenir_per_usuari(dni)
-            
+
             # Si no existe tarjeta pero se proporcionan datos, creamos una nueva
             if not targeta:
                 if all(key in tdata for key in ['number', 'expiry', 'cvc']):
@@ -114,12 +112,13 @@ class ControladorUsuari:
                 if 'cvc' in tdata:
                     targeta.cvc = tdata['cvc']
                     targeta_actualizada = True
-                    
+
                 if targeta_actualizada and not targeta.modifica():
                     return {"error": "Error actualitzant la targeta"}, 500
 
-        # 5. Retorno exitoso (solo un return al final)
+        # 5. Retorno exitoso
         return {"message": "Perfil actualitzat correctament"}, 200
+
     
 
     def eliminar_usuari(self, password: str):

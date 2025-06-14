@@ -1,6 +1,7 @@
 from flask import Blueprint, request, session, jsonify
-from app.ControladorUsuari import ControladorUsuari
+from app.ControladorUsuari import ControladorUsuari, Usuari,CercadoraUsuari
 from app.ControladorPartit import ControladorPartit
+from app.Targeta import Targeta
 from app.ApostesUsuari import ApostesUsuari  # Importamos la clase (no un blueprint)
 
 main = Blueprint('main', __name__)
@@ -103,3 +104,33 @@ def listar_apostas():
     apu = ApostesUsuari()
     results = apu.obtenir_apostes(usuari_dni)
     return jsonify(results), 200
+
+@main.route('/infoUsuari', methods=['GET'])
+def obtenir_perfil():
+    if 'usuari_dni' not in session:
+        return jsonify({"error": "Usuari no autenticat"}), 401
+
+    dni = session['usuari_dni']
+    cercadora = CercadoraUsuari()
+    usuari = cercadora.cerca_per_dni(dni)
+
+    if not usuari:
+        return jsonify({"error": "Usuari no trobat"}), 404
+
+    # Obtener la tarjeta asociada (puede ser None)
+    targeta = Targeta.obtenir_per_usuari(dni)
+
+    dades_usuari = {
+        "nom": usuari.getNom(),
+        "mail": usuari.getMail(),
+        "dni": usuari.getDNI(),
+        "saldo": usuari.getSaldo(),
+        # Añadimos los datos de la tarjeta solo si existe
+        "targeta": {
+            "id_num_targ": targeta.id_num_targ,
+            "data_cad": targeta.data_cad,
+            "cvc": targeta.cvc
+        } if targeta else None
+    }
+
+    return jsonify(dades_usuari), 200
