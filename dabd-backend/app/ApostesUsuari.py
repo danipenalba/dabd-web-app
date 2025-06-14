@@ -1,66 +1,32 @@
-import datetime
-from app.connexio_db import ConnexioBD
+from app.Aposta import ApostaSimple, ApostaCombinada
 
 class ApostesUsuari:
-    """
-    Clase para gestionar las apuestas de un usuario: creación y listado.
-    """
-
     def __init__(self):
         pass
 
-    def log(self, message: str):
-        print(f"[ApostasUsuari] {{{datetime.datetime.now()}}} {message}")
+    def crear_apuestas_multiples(self, usuari_dni: str, partit_id: int, bets: dict, odds: float, amount: float) -> bool:
+        all_premises = []
+        simples = []
 
-    def crea_aposta(self, usuari_dni: str, partit_id: int, premisa: str, cuota: int, estat: str = 'pendiente') -> bool:
-        """
-        Inserta una nueva apuesta para el usuario dado.
+        for team in ['home', 'away']:
+            for param, value in bets.get(team, {}).items():
+                texto = f"{team.upper()} - {param}: {value if isinstance(value, int) else 'Sí'}"
+                aposta = ApostaSimple(texto, odds, usuari_dni, partit_id, 'pendiente', 0.0)
+                simples.append(aposta)
+                all_premises.append(texto)
 
-        :param usuari_dni: DNI del usuario
-        :param partit_id: ID del partido al que se apuesta
-        :param premisa: Texto de la premisa/apuesta
-        :param cuota: Cuota asignada a la apuesta
-        :param estat: Estado inicial de la apuesta ('pendiente' por defecto)
-        :return: True si la inserción fue exitosa, False en caso contrario
-        """
-        db = ConnexioBD()
-        try:
-            self.log(f"🔄 Creando apuesta para usuario {usuari_dni}: partido={partit_id}, premisa='{premisa}', cuota={cuota}, estat={estat}")
-            query = (
-                "INSERT INTO aposta (premisa, cuota, estat, usuari_id, partit_id) "
-                "VALUES (%s, %s, %s, %s, %s)"
-            )
-            db.executarComanda(query, (premisa, cuota, estat, usuari_dni, partit_id))
-            self.log("✅ Apuesta insertada correctamente.")
-            return True
-        except Exception as e:
-            self.log(f"❌ Error al insertar apuesta: {e}")
+        if not all_premises:
+            print("❌ No hay premisas.")
             return False
-        finally:
-            db.tancar()
 
-    def obtenir_apostes(self, usuari_dni: str) -> list[dict]:
-        """
-        Recupera todas las apuestas de un usuario, incluyendo los nombres de los equipos local y visitante.
+        if len(simples) == 1:
+            aposta = simples[0]
+            return aposta.insertar_base() and aposta.insertar_especifica()
 
-        :param usuari_dni: DNI del usuario
-        :return: Lista de diccionarios con los datos de las apuestas y equipos asociados
-        """
-        db = ConnexioBD()
-        try:
-            self.log(f"🔍 Obteniendo apuestas del usuario {usuari_dni} con detalles de partido...")
-            query = (
-                "SELECT a.id, a.premisa, a.cuota, a.estat, "
-                "p.id AS partit_id, p.local AS equip_local, p.visitant AS equip_visitant "
-                "FROM aposta a "
-                "JOIN partit p ON a.partit_id = p.id "
-                "WHERE a.usuari_id = %s"
-            )
-            results = db.executarConsulta(query, (usuari_dni,))
-            self.log(f"✅ Encontradas {len(results)} apuestas con detalles.")
-            return results
-        except Exception as e:
-            self.log(f"❌ Error al obtener apuestas: {e}")
-            return []
-        finally:
-            db.tancar()
+        premisa_combinada = " + ".join(all_premises)
+        combinada = ApostaCombinada(premisa_combinada, odds, usuari_dni, partit_id, 'pendiente', amount, simples)
+        
+        if not combinada.insertar_base():
+            return False
+        
+        return combinada.insertar_especifica()

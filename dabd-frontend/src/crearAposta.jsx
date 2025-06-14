@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './crearAposta.css';
 
 function CrearAposta({ onNavigateToMainPage }) {
-  // Estados para los equipos y partido (datos mock por ahora)
   const [matchData] = useState({
     homeTeam: 'Real Madrid',
     awayTeam: 'FC Barcelona',
     date: '2025-06-20 20:45',
-    homeTeamLogo: './images/madrid.jpg', // Placeholder
-    awayTeamLogo: './images/barca.jpg'   // Placeholder
+    homeTeamLogo: './images/madrid.jpg',
+    awayTeamLogo: './images/barca.jpg'
   });
 
-  // Parámetros de apuesta disponibles
   const betParameters = [
     { id: 'victory', name: 'Victoria', type: 'boolean' },
     { id: 'draw', name: 'Empate', type: 'boolean' },
@@ -26,29 +24,22 @@ function CrearAposta({ onNavigateToMainPage }) {
     { id: 'foulsAgainst', name: 'Faltas en contra', type: 'number' }
   ];
 
-  // Estados para las apuestas seleccionadas
-  const [selectedBets, setSelectedBets] = useState({
-    home: {},
-    away: {}
-  });
-
+  const [selectedBets, setSelectedBets] = useState({ home: {}, away: {} });
   const [finalOdds, setFinalOdds] = useState(null);
   const [betAmount, setBetAmount] = useState('');
 
-  // Generar cuota aleatoria cuando se selecciona alguna apuesta
   useEffect(() => {
     const hasSelectedBets = Object.keys(selectedBets.home).length > 0 || 
-                           Object.keys(selectedBets.away).length > 0;
-    
+                            Object.keys(selectedBets.away).length > 0;
+
     if (hasSelectedBets) {
-      const randomOdds = (Math.random() * 4 + 1).toFixed(2); // Entre 1.00 y 5.00
+      const randomOdds = (Math.random() * 4 + 1).toFixed(2);
       setFinalOdds(parseFloat(randomOdds));
     } else {
       setFinalOdds(null);
     }
   }, [selectedBets]);
 
-  // Manejar selección de apuesta
   const handleBetSelection = (team, parameterId, value) => {
     setSelectedBets(prev => ({
       ...prev,
@@ -59,19 +50,14 @@ function CrearAposta({ onNavigateToMainPage }) {
     }));
   };
 
-  // Eliminar apuesta seleccionada
   const removeBet = (team, parameterId) => {
     setSelectedBets(prev => {
-      const newTeamBets = { ...prev[team] };
-      delete newTeamBets[parameterId];
-      return {
-        ...prev,
-        [team]: newTeamBets
-      };
+      const updatedTeam = { ...prev[team] };
+      delete updatedTeam[parameterId];
+      return { ...prev, [team]: updatedTeam };
     });
   };
 
-  // Crear apuesta
   const handleCreateBet = () => {
     if (!finalOdds || !betAmount || parseFloat(betAmount) <= 0) {
       alert('Por favor, selecciona una apuesta válida e introduce una cantidad.');
@@ -88,16 +74,14 @@ function CrearAposta({ onNavigateToMainPage }) {
 
     console.log('Apuesta creada:', betData);
     alert(`¡Apuesta creada! Cantidad: €${betAmount} | Cuota: ${finalOdds} | Ganancia potencial: €${betData.potentialWin}`);
-    
-    // Reset form
+
     setSelectedBets({ home: {}, away: {} });
     setBetAmount('');
   };
 
-  // Componente para parámetro de apuesta
   const BetParameter = ({ parameter, team, teamName }) => {
     const isSelected = selectedBets[team][parameter.id] !== undefined;
-    
+
     return (
       <div className={`bet-parameter ${isSelected ? 'selected' : ''}`}>
         <div className="parameter-header">
@@ -111,7 +95,7 @@ function CrearAposta({ onNavigateToMainPage }) {
             </button>
           )}
         </div>
-        
+
         {!isSelected ? (
           <button 
             className="select-bet-btn"
@@ -120,7 +104,7 @@ function CrearAposta({ onNavigateToMainPage }) {
                 handleBetSelection(team, parameter.id, true);
               } else {
                 const value = prompt(`¿Cuántos ${parameter.name.toLowerCase()} para ${teamName}?`);
-                if (value && !isNaN(value) && parseInt(value) >= 0) {
+                if (value !== null && !isNaN(value) && parseInt(value) >= 0) {
                   handleBetSelection(team, parameter.id, parseInt(value));
                 }
               }
@@ -131,10 +115,7 @@ function CrearAposta({ onNavigateToMainPage }) {
         ) : (
           <div className="selected-bet-info">
             <span className="bet-value">
-              {parameter.type === 'boolean' 
-                ? '✓' 
-                : `+${selectedBets[team][parameter.id]}`
-              }
+              {parameter.type === 'boolean' ? '✓' : `+${selectedBets[team][parameter.id]}`}
             </span>
           </div>
         )}
@@ -144,7 +125,6 @@ function CrearAposta({ onNavigateToMainPage }) {
 
   return (
     <div className="crear-aposta-container">
-      {/* Barra de navegación */}
       <nav className="navbar">
         <div className="logo" onClick={onNavigateToMainPage} style={{ cursor: 'pointer' }}>
           EUROBET
@@ -156,13 +136,11 @@ function CrearAposta({ onNavigateToMainPage }) {
         </div>
       </nav>
 
-      {/* Contenido principal */}
       <main className="main-content">
         <div className="page-header">
           <h1>CREAR APUESTA</h1>
         </div>
 
-        {/* Información del partido */}
         <section className="match-info-section">
           <div className="match-header">
             <div className="team home-team">
@@ -172,12 +150,12 @@ function CrearAposta({ onNavigateToMainPage }) {
               <h2>{matchData.homeTeam}</h2>
               <span className="team-type">LOCAL</span>
             </div>
-            
+
             <div className="vs-section">
               <div className="vs-text">VS</div>
               <div className="match-date">{matchData.date}</div>
             </div>
-            
+
             <div className="team away-team">
               <div className="team-logo">
                 <img src={matchData.awayTeamLogo} alt={matchData.awayTeam} />
@@ -188,10 +166,8 @@ function CrearAposta({ onNavigateToMainPage }) {
           </div>
         </section>
 
-        {/* Parámetros de apuesta */}
         <section className="betting-section">
           <div className="betting-columns">
-            {/* Columna equipo local */}
             <div className="betting-column home-column">
               <h3>APUESTAS - {matchData.homeTeam}</h3>
               <div className="parameters-grid">
@@ -206,7 +182,6 @@ function CrearAposta({ onNavigateToMainPage }) {
               </div>
             </div>
 
-            {/* Columna equipo visitante */}
             <div className="betting-column away-column">
               <h3>APUESTAS - {matchData.awayTeam}</h3>
               <div className="parameters-grid">
@@ -223,12 +198,11 @@ function CrearAposta({ onNavigateToMainPage }) {
           </div>
         </section>
 
-        {/* Resumen de apuesta */}
         {finalOdds && (
           <section className="bet-summary-section">
             <div className="bet-summary-card">
               <h3>RESUMEN DE APUESTA</h3>
-              
+
               <div className="selected-bets-summary">
                 {Object.keys(selectedBets.home).length > 0 && (
                   <div className="team-bets">
@@ -245,7 +219,7 @@ function CrearAposta({ onNavigateToMainPage }) {
                     </ul>
                   </div>
                 )}
-                
+
                 {Object.keys(selectedBets.away).length > 0 && (
                   <div className="team-bets">
                     <h4>{matchData.awayTeam} (Visitante):</h4>
@@ -264,10 +238,8 @@ function CrearAposta({ onNavigateToMainPage }) {
               </div>
 
               <div className="odds-section">
-                <div className="odds-display">
-                  <span className="odds-label">CUOTA FINAL:</span>
-                  <span className="odds-value">{finalOdds}</span>
-                </div>
+                <span className="odds-label">CUOTA FINAL:</span>
+                <span className="odds-value">{finalOdds}</span>
               </div>
 
               <div className="bet-amount-section">
@@ -281,10 +253,9 @@ function CrearAposta({ onNavigateToMainPage }) {
                   min="0"
                   step="0.01"
                 />
-                
                 {betAmount && finalOdds && (
                   <div className="potential-win">
-                    <span>Ganancia potencial: €{(parseFloat(betAmount) * finalOdds).toFixed(2)}</span>
+                    Ganancia potencial: €{(parseFloat(betAmount) * finalOdds).toFixed(2)}
                   </div>
                 )}
               </div>
@@ -301,7 +272,6 @@ function CrearAposta({ onNavigateToMainPage }) {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="main-footer">
         <div className="footer-content">
           <div className="footer-section">

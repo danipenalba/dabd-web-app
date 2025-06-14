@@ -76,35 +76,39 @@ def eliminar_usuari():
     return ctrl.eliminar_usuari(data['password'])
 
 
-# Endpoints para apuestas del usuario
+
+
 @main.route('/apostas', methods=['POST'])
 def crear_aposta():
     if 'usuari_dni' not in session:
         return jsonify({"error": "No autenticado"}), 401
+
     data = request.get_json()
-    required = ['partit_id', 'premisa', 'cuota']
-    if not all(key in data for key in required):
-        return jsonify({"error": f"Faltan campos, se requieren: {required}"}), 400
+    if not data:
+        return jsonify({"error": "Datos no proporcionados"}), 400
 
     usuari_dni = session['usuari_dni']
+    match = data.get("match")
+    bets = data.get("bets")
+    odds = data.get("odds")
+    amount = data.get("amount")
+
+    if not (match and bets and odds and amount):
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
+    partit_id = match.get("id")  # Asegúrate de enviar "id" en el match desde el frontend
+    if not partit_id:
+        return jsonify({"error": "Falta el ID del partido"}), 400
+
     apu = ApostesUsuari()
-    success = apu.crea_aposta(
-        usuari_dni=usuari_dni,
-        partit_id=data['partit_id'],
-        premisa=data['premisa'],
-        cuota=data['cuota']
+    success = apu.crear_apuestas_multiples(
+        usuari_dni, partit_id, bets, odds, amount
     )
-    return jsonify({"success": success}), (201 if success else 400)
 
-
-@main.route('/apostas', methods=['GET'])
-def listar_apostas():
-    if 'usuari_dni' not in session:
-        return jsonify({"error": "No autenticado"}), 401
-    usuari_dni = session['usuari_dni']
-    apu = ApostesUsuari()
-    results = apu.obtenir_apostes(usuari_dni)
-    return jsonify(results), 200
+    if success:
+        return jsonify({"mensaje": "Apuesta creada correctamente"}), 201
+    else:
+        return jsonify({"error": "Error al crear apuesta"}), 500
 
 @main.route('/infoUsuari', methods=['GET'])
 def obtenir_perfil():
