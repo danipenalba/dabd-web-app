@@ -10,15 +10,15 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
   const [error, setError] = useState('');
 
   // Calcular estadísticas
-  const apuestasGanadas = apostasHistorial.filter(a => a.estat === 'GANADA').length;
-  const apuestasPerdidas = apostasHistorial.filter(a => a.estat === 'PERDIDA').length;
-  const apuestasPendientes = apostasHistorial.filter(a => a.estat === 'PENDIENTE').length;
+  const apuestasGanadas = apostasHistorial.filter(a => a.estado === 'GANADA').length;
+  const apuestasPerdidas = apostasHistorial.filter(a => a.estado === 'PERDIDA').length;
+  const apuestasPendientes = apostasHistorial.filter(a => a.estado === 'PENDIENTE').length;
   const tasaAcierto = apostasHistorial.length > 0 
     ? Math.round((apuestasGanadas / apostasHistorial.length) * 100) 
     : 0;
   const gananciaTotal = apostasHistorial
-    .filter(a => a.estat === 'GANADA')
-    .reduce((total, apuesta) => total + (apuesta.cuota * apuesta.cantidad - apuesta.cantidad), 0);
+    .filter(a => a.estado === 'GANADA')
+    .reduce((total, apuesta) => total + (apuesta.cuota * apuesta.importe - apuesta.importe), 0);
 
   const handleCreateBet = () => {
     console.log('Crear nueva apuesta');
@@ -35,7 +35,7 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
     if (activeTab !== 'historial') return;
     setLoading(true);
     setError('');
-    fetch('http://localhost:5000/apostas', {
+    fetch('http://localhost:5000/apostasmostrar', {
       method: 'GET',
       credentials: 'include'
     })
@@ -44,40 +44,28 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
         return response.json();
       })
       .then(data => {
-        // Agregar datos de ejemplo para demostración
+        // Agregar datos de ejemplo para demostración si no hay datos del backend
         const apuestasConEjemplos = data.length > 0 ? data : [
           {
-            id: 1,
+            partido: "FC Barcelona vs Real Madrid",
             premisa: "Ganador del partido",
             cuota: 2.5,
-            cantidad: 20,
-            estat: "GANADA",
-            equip_local: "FC Barcelona",
-            equip_visitant: "Real Madrid",
-            fecha: "2025-05-15",
-            competicion: "La Liga"
+            importe: 20,
+            estado: "GANADA"
           },
           {
-            id: 2,
+            partido: "Atlético Madrid vs Valencia CF",
             premisa: "Ambos equipos marcan",
             cuota: 1.8,
-            cantidad: 15,
-            estat: "PERDIDA",
-            equip_local: "Atlético Madrid",
-            equip_visitant: "Valencia CF",
-            fecha: "2025-05-10",
-            competicion: "La Liga"
+            importe: 15,
+            estado: "PERDIDA"
           },
           {
-            id: 3,
+            partido: "Sevilla FC vs Villarreal CF",
             premisa: "Más de 2.5 goles",
             cuota: 2.1,
-            cantidad: 25,
-            estat: "PENDIENTE",
-            equip_local: "Sevilla FC",
-            equip_visitant: "Villarreal CF",
-            fecha: "2025-06-20",
-            competicion: "Copa del Rey"
+            importe: 25,
+            estado: "PENDIENTE"
           }
         ];
         setApostasHistorial(apuestasConEjemplos);
@@ -187,50 +175,46 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
                     <div className="bets-header">
                       <div>PARTIDO</div>
                       <div>APUESTA</div>
-                      <div>CANTIDAD</div>
+                      <div>IMPORTE</div>
                       <div>CUOTA</div>
                       <div>GANANCIA</div>
                       <div>ESTADO</div>
                     </div>
                     <div className="bets-list">
-                      {apostasHistorial.map(apuesta => {
-                        const gananciaPotencial = apuesta.cuota * apuesta.cantidad;
-                        const gananciaReal = apuesta.estat === 'GANADA' 
-                          ? (apuesta.cuota * apuesta.cantidad - apuesta.cantidad).toFixed(2)
-                          : apuesta.estat === 'PERDIDA' 
-                            ? `-${apuesta.cantidad}` 
-                            : (gananciaPotencial - apuesta.cantidad).toFixed(2);
+                      {apostasHistorial.map((apuesta, index) => {
+                        const gananciaPotencial = apuesta.cuota * apuesta.importe;
+                        const gananciaReal = apuesta.estado === 'GANADA' 
+                          ? (apuesta.cuota * apuesta.importe - apuesta.importe).toFixed(2)
+                          : apuesta.estado === 'PERDIDA' 
+                            ? `-${apuesta.importe}` 
+                            : (gananciaPotencial - apuesta.importe).toFixed(2);
                         
                         return (
-                          <div key={apuesta.id} className="bet-card">
+                          <div key={`${apuesta.partido}-${apuesta.premisa}-${index}`} className="bet-card">
                             <div className="match-info">
                               <div className="teams">
-                                <span className="team local">{apuesta.equip_local}</span>
-                                <span className="vs">vs</span>
-                                <span className="team visitor">{apuesta.equip_visitant}</span>
+                                <span className="team">{apuesta.partido}</span>
                               </div>
-                              <div className="competition">{apuesta.competicion}</div>
-                              <div className="match-date">{apuesta.fecha}</div>
                             </div>
                             <div className="bet-premise">
                               {apuesta.premisa}
                             </div>
                             <div className="bet-amount">
-                              €{apuesta.cantidad}
+                              €{apuesta.importe}
                             </div>
                             <div className="bet-odds">
                               {apuesta.cuota}
                             </div>
-                            <div className={`bet-profit ${apuesta.estat.toLowerCase()}`}>
-                              {apuesta.estat === 'PENDIENTE' ? `€${gananciaReal}*` : `€${gananciaReal}`}
-                              {apuesta.estat === 'PENDIENTE' && <div className="profit-note">*Potencial</div>}
+                            <div className={`bet-profit ${apuesta.estado.toLowerCase()}`}>
+                              {apuesta.estado === 'PENDIENTE' ? `€${gananciaReal}*` : `€${gananciaReal}`}
+                              {apuesta.estado === 'PENDIENTE' && <div className="profit-note">*Potencial</div>}
                             </div>
                             <div 
                               className="bet-status" 
-                              style={{ backgroundColor: getStatusColor(apuesta.estat) }}
+                              style={{ backgroundColor: getStatusColor(apuesta.estado) }}
                             >
-                              <span className="status-icon">{getStatusIcon(apuesta.estat)}</span>
-                              {apuesta.estat}
+                              <span className="status-icon">{getStatusIcon(apuesta.estado)}</span>
+                              {apuesta.estado}
                             </div>
                           </div>
                         );
@@ -292,7 +276,7 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
                               style={{color: gananciaTotal >= 0 ? 'var(--success)' : 'var(--accent)'}}
                             >
                               {apostasHistorial.length > 0 
-                                ? `${(gananciaTotal / apostasHistorial.reduce((sum, a) => sum + a.cantidad, 0) * 100).toFixed(1)}%` 
+                                ? `${(gananciaTotal / apostasHistorial.reduce((sum, a) => sum + a.importe, 0) * 100).toFixed(1)}%` 
                                 : '0%'}
                             </span>
                           </div>

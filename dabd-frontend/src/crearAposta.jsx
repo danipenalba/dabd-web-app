@@ -3,6 +3,7 @@ import './crearAposta.css';
 
 function CrearAposta({ onNavigateToMainPage }) {
   const [matchData] = useState({
+    id: 33160, // ID del partido requerido por el backend
     homeTeam: 'Real Madrid',
     awayTeam: 'FC Barcelona',
     date: '2025-06-20 20:45',
@@ -27,6 +28,9 @@ function CrearAposta({ onNavigateToMainPage }) {
   const [selectedBets, setSelectedBets] = useState({ home: {}, away: {} });
   const [finalOdds, setFinalOdds] = useState(null);
   const [betAmount, setBetAmount] = useState('');
+  const [isCreatingBet, setIsCreatingBet] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const hasSelectedBets = Object.keys(selectedBets.home).length > 0 || 
@@ -58,25 +62,99 @@ function CrearAposta({ onNavigateToMainPage }) {
     });
   };
 
-  const handleCreateBet = () => {
+  const handleCreateBet = async () => {
     if (!finalOdds || !betAmount || parseFloat(betAmount) <= 0) {
-      alert('Por favor, selecciona una apuesta válida e introduce una cantidad.');
+      setError('Por favor, selecciona una apuesta válida e introduce una cantidad.');
       return;
     }
+
+    setIsCreatingBet(true);
+    setError('');
+    setSuccess('');
 
     const betData = {
       match: matchData,
       bets: selectedBets,
       odds: finalOdds,
-      amount: parseFloat(betAmount),
-      potentialWin: (parseFloat(betAmount) * finalOdds).toFixed(2)
+      amount: parseFloat(betAmount)
     };
 
-    console.log('Apuesta creada:', betData);
-    alert(`¡Apuesta creada! Cantidad: €${betAmount} | Cuota: ${finalOdds} | Ganancia potencial: €${betData.potentialWin}`);
+    console.log('Enviando datos:', betData); // Debug
 
-    setSelectedBets({ home: {}, away: {} });
-    setBetAmount('');
+    try {
+      // Detectar la URL base del backend
+      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+      const url = baseUrl ? `${baseUrl}/apostas` : '/apostas';
+      
+      console.log('URL de petición:', url); // Debug
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Cambio de 'same-origin' a 'include' para CORS
+        body: JSON.stringify(betData)
+      });
+
+      console.log('Respuesta del servidor:', response.status, response.statusText); // Debug
+
+      // Verificar si la respuesta es JSON válida
+      let result;
+      try {
+        result = await response.json();
+        console.log('Datos de respuesta:', result); // Debug
+      } catch (jsonError) {
+        console.error('Error al parsear JSON:', jsonError);
+        throw new Error('Respuesta del servidor no válida');
+      }
+
+      if (response.ok) {
+        setSuccess(`¡Apuesta creada exitosamente! Cantidad: €${betAmount} | Cuota: ${finalOdds} | Ganancia potencial: €${(parseFloat(betAmount) * finalOdds).toFixed(2)}`);
+        
+        // Limpiar formulario después del éxito
+        setSelectedBets({ home: {}, away: {} });
+        setBetAmount('');
+        setFinalOdds(null);
+        
+        // Scroll hacia el mensaje de éxito
+        setTimeout(() => {
+          const successElement = document.querySelector('.success-message');
+          if (successElement) {
+            successElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+        
+      } else {
+        // Manejar diferentes tipos de errores
+        switch (response.status) {
+          case 401:
+            setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
+            break;
+          case 400:
+            setError(result.error || 'Datos de apuesta inválidos.');
+            break;
+          case 500:
+            setError('Error interno del servidor. Inténtalo de nuevo más tarde.');
+            break;
+          default:
+            setError(result.error || 'Error inesperado al crear la apuesta.');
+        }
+      }
+    } catch (error) {
+      console.error('Error detallado:', error);
+      
+      // Mensajes de error más específicos
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setError('No se puede conectar con el servidor. Verifica que el backend esté ejecutándose.');
+      } else if (error.message.includes('JSON')) {
+        setError('Error en la respuesta del servidor. Revisa los logs del backend.');
+      } else {
+        setError(`Error de conexión: ${error.message}`);
+      }
+    } finally {
+      setIsCreatingBet(false);
+    }
   };
 
   const BetParameter = ({ parameter, team, teamName }) => {
@@ -140,6 +218,59 @@ function CrearAposta({ onNavigateToMainPage }) {
         <div className="page-header">
           <h1>CREAR APUESTA</h1>
         </div>
+
+        {/* Mensajes de error y éxito */}
+        {error && (
+          <div className="error-message" style={{
+            backgroundColor: '#ff4444',
+            color: 'white',
+            padding: '15px',
+            borderRadius: '5px',
+            margin: '20px 0',
+            textAlign: 'center'
+          }}>
+            {error}
+            <button 
+              onClick={() => setError('')}
+              style={{
+                marginLeft: '10px',
+                background: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {success && (
+          <div className="success-message" style={{
+            backgroundColor: '#44ff44',
+            color: '#000',
+            padding: '15px',
+            borderRadius: '5px',
+            margin: '20px 0',
+            textAlign: 'center'
+          }}>
+            {success}
+            <button 
+              onClick={() => setSuccess('')}
+              style={{
+                marginLeft: '10px',
+                background: 'transparent',
+                border: 'none',
+                color: '#000',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         <section className="match-info-section">
           <div className="match-header">
@@ -252,6 +383,7 @@ function CrearAposta({ onNavigateToMainPage }) {
                   placeholder="0.00"
                   min="0"
                   step="0.01"
+                  disabled={isCreatingBet}
                 />
                 {betAmount && finalOdds && (
                   <div className="potential-win">
@@ -263,9 +395,13 @@ function CrearAposta({ onNavigateToMainPage }) {
               <button 
                 className="create-bet-btn"
                 onClick={handleCreateBet}
-                disabled={!finalOdds || !betAmount || parseFloat(betAmount) <= 0}
+                disabled={!finalOdds || !betAmount || parseFloat(betAmount) <= 0 || isCreatingBet}
+                style={{
+                  opacity: isCreatingBet ? 0.6 : 1,
+                  cursor: isCreatingBet ? 'not-allowed' : 'pointer'
+                }}
               >
-                CREAR APUESTA
+                {isCreatingBet ? 'CREANDO APUESTA...' : 'CREAR APUESTA'}
               </button>
             </div>
           </section>

@@ -5,6 +5,9 @@ from app.Targeta import Targeta
 from app.ApostesUsuari import ApostesUsuari  # Importamos la clase (no un blueprint)
 from app.MostraEquips import MostraEquips
 from app.MostraJugadors import MostraJugadors
+from app.MostrarApostes import MostrarApostes
+
+
 main = Blueprint('main', __name__)
 
 @main.route('/api/hello', methods=['GET'])
@@ -157,3 +160,12 @@ def obtenir_equips(competicio_id):
     me = MostraEquips()
     equips = me.get_equips_per_competicio(competicio_id)
     return jsonify(equips), 200
+
+
+
+
+
+@main.route('/apostasmostrar', methods=['GET'])
+def obtenir_apostes_mostrar():
+     apuestas = MostrarApostes().get_apostes_usuari()
+     return jsonify(apuestas), 200

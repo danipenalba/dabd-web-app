@@ -91,7 +91,7 @@ class ApostaCombinada(Aposta):
                 query = """
                 INSERT INTO aposta_combinada (id, premisa, cuota, estat, usuari_id)
                 VALUES (%s, %s, %s, %s, %s)
-                ON CONFLICT (id) DO NOTHING
+                
                 """
                 db.executarComanda(query, (self.id, self.premisa, self.quota, self.estat, self.usuari_dni))
 
@@ -109,7 +109,7 @@ class ApostaCombinada(Aposta):
                 rel_query = """
                 INSERT INTO aposta_combinada_simple (combinada_id, simple_id)
                 VALUES (%s, %s)
-                ON CONFLICT (combinada_id, simple_id) DO NOTHING
+                
                 """
                 db.executarComanda(rel_query, (self.id, aposta_simple.id))
                 self.log(f"Relacionada simple {aposta_simple.id} con combinada {self.id}")
