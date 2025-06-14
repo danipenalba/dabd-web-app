@@ -20,6 +20,8 @@ import Coppa from './Coppaitalia.jsx';
 import DFB from './DFBPokal.jsx';
 import Super from './Superliga.jsx';
 import Apostes from './ApostesUsuari.jsx';
+import Crear from './crearAposta.jsx';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -43,6 +45,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/seriea" element={<Seriea />} /> 
         <Route path="/superliga" element={<Super />} /> 
         <Route path="/apostesusuari" element={<Apostes />} /> 
+        <Route path="/crearaposta" element={<Crear />} /> 
 
       </Routes>
     </BrowserRouter>

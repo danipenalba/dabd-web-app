@@ -3,7 +3,8 @@ from app.ControladorUsuari import ControladorUsuari, Usuari,CercadoraUsuari
 from app.ControladorPartit import ControladorPartit
 from app.Targeta import Targeta
 from app.ApostesUsuari import ApostesUsuari  # Importamos la clase (no un blueprint)
-
+from app.MostraEquips import MostraEquips
+from app.MostraJugadors import MostraJugadors
 main = Blueprint('main', __name__)
 
 @main.route('/api/hello', methods=['GET'])
@@ -134,3 +135,21 @@ def obtenir_perfil():
     }
 
     return jsonify(dades_usuari), 200
+
+
+
+
+@main.route('/jugadors/<equip_id>', methods=['GET'])
+def obtenir_jugadors(equip_id):
+    mostra = MostraJugadors()
+    noms = mostra.get_jugadors_per_equip(equip_id)
+    return jsonify(noms), 200
+
+
+
+
+@main.route('/equips/<competicio_id>', methods=['GET'])
+def obtenir_equips(competicio_id):
+    me = MostraEquips()
+    equips = me.get_equips_per_competicio(competicio_id)
+    return jsonify(equips), 200
