@@ -23,14 +23,13 @@ class MostrarApostes:
                 "a.premisa, a.cuota, a.import AS importe, a.estat "
                 "FROM aposta a "
                 "JOIN partit p ON a.partit_id = p.id "
-                "WHERE a.usuari_id = %s"
+                "WHERE a.usuari_id = %s AND a.import IS NOT NULL AND a.import > 0"
             )
             rows = db.executarConsulta(query, (usuari_dni,))
             self.log(f"✅ Encontradas {len(rows)} apuestas.")
 
             apuestas = []
             for row in rows:
-                # row puede ser dict o tuple
                 local = row['equip_local'] if isinstance(row, dict) else row[0]
                 visitant = row['equip_visitant'] if isinstance(row, dict) else row[1]
                 premisa = row['premisa'] if isinstance(row, dict) else row[2]
@@ -50,3 +49,4 @@ class MostrarApostes:
             return []
         finally:
             db.tancar()
+

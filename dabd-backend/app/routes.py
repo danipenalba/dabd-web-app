@@ -170,12 +170,13 @@ def obtenir_partits_despres_18_juny():
 
 
 
-
-
-
-
-
 @main.route('/apostasmostrar', methods=['GET'])
 def obtenir_apostes_mostrar():
      apuestas = MostrarApostes().get_apostes_usuari()
      return jsonify(apuestas), 200
+
+@main.route('/matches/<int:match_id>', methods=['GET'])
+def get_match(match_id):
+    ctrl = ControladorPartit()
+    result, status_code = ctrl.obtenir_partit(match_id)
+    return jsonify(result), status_code

@@ -1,112 +1,212 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LaLigaPage.css';
+import competitionImg from './images/seria.png';
 
-// Simulando la importación del logo (cambiarás esto por cada competición)
-import laligaImg from './images/seria.png';
+function SerieAPage({ onNavigateToHome, onNavigateToMyBets, onNavigateBack }) {
+  const [matchFilter, setMatchFilter] = useState('jugados');
+  const [teams, setTeams] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [filteredMatches, setFilteredMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-function LaLigaPage({ onNavigateToHome, onNavigateToMyBets, onNavigateBack }) {
-  const [matchFilter, setMatchFilter] = useState('jugados'); // 'jugados' o 'futuros'
+  const COMPETITION_ID = 'liga_it';
+  const COMPETITION_NAME = 'SERIE A';
+  const COMPETITION_DESCRIPTION = 'Italia • Liga Nacional';
 
-  // Datos de ejemplo - estos apartados estarán vacíos inicialmente
-  const teams = []; // Aquí irán los equipos de la competición
-  const matches = []; // Aquí irán los partidos
+  const fetchTeams = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:5000/equips/${COMPETITION_ID}`);
+      if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+      const data = await response.json();
+      setTeams(data);
+    } catch (err) {
+      console.error('Error al obtener equipos:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMatches = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/partits/despres-18-juny');
+      if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+      const allMatches = await response.json();
+      const filtered = allMatches
+        .filter(match => match.competicio_id === COMPETITION_ID)
+        .sort((a, b) => new Date(b.data) - new Date(a.data));
+      setMatches(filtered);
+      setFilteredMatches(filterByType(filtered, matchFilter));
+    } catch (err) {
+      console.error('Error al obtener partidos:', err);
+      setError(err.message);
+    }
+  };
+
+  const filterByType = (matchList, type) => {
+    const now = new Date();
+    return matchList.filter(match =>
+      type === 'jugados'
+        ? new Date(match.data) < now
+        : new Date(match.data) >= now
+    );
+  };
+
+  useEffect(() => {
+    fetchTeams();
+    fetchMatches();
+  }, []);
+
+  useEffect(() => {
+    setFilteredMatches(filterByType(matches, matchFilter));
+  }, [matchFilter, matches]);
+
+  const handleClickPartido = (match) => {
+    const homeLogo = teams.find(t => t.nom === match.local)?.logo || './images/default_home.jpg';
+    const awayLogo = teams.find(t => t.nom === match.visitant)?.logo || './images/default_away.jpg';
+
+    navigate('/crearaposta', {
+      state: {
+        partido: {
+          id: match.id,
+          homeTeam: match.local,
+          awayTeam: match.visitant,
+          date: match.data,
+          homeTeamLogo: homeLogo,
+          awayTeamLogo: awayLogo
+        }
+      }
+    });
+  };
 
   return (
     <div className="competition-container">
-      {/* Barra de navegación superior */}
       <nav className="navbar">
         <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
           EUROBET
         </div>
         <div className="nav-buttons">
-          <button className="back-btn" onClick={onNavigateBack}>
-            ← Volver
-          </button>
-          <button className="my-bets-btn" onClick={onNavigateToMyBets}>
-            Mis Apuestas
-          </button>
-          <button className="logout-btn" onClick={onNavigateToHome}>
-            Cerrar Sesión
-          </button>
+          <button className="back-btn" onClick={onNavigateBack}>← Volver</button>
+          <button className="my-bets-btn" onClick={onNavigateToMyBets}>Mis Apuestas</button>
+          <button className="logout-btn" onClick={onNavigateToHome}>Cerrar Sesión</button>
         </div>
       </nav>
 
-      {/* Contenido principal */}
       <main className="main-content">
-        {/* Header de la competición */}
         <div className="competition-header">
           <div className="competition-logo">
-            <img src={laligaImg} alt="LaLiga" /> 
+            <img src={competitionImg} alt={COMPETITION_NAME} />
           </div>
           <div className="competition-title">
-            <h1>SERIE A</h1>
-            <span>Italia • Liga Nacional</span>
+            <h1>{COMPETITION_NAME}</h1>
+            <span>{COMPETITION_DESCRIPTION}</span>
           </div>
         </div>
 
-        {/* Sección de Equipos Participantes */}
         <section className="teams-section">
-          <div className="section-header">
-            <h3>EQUIPOS PARTICIPANTES</h3>
-          </div>
+          <div className="section-header"><h3>EQUIPOS PARTICIPANTES</h3></div>
           <div className="teams-container">
-            {teams.length === 0 ? (
+            {loading ? (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Cargando equipos...</p>
+              </div>
+            ) : error ? (
+              <div className="error-state">
+                <div className="error-icon">⚠️</div>
+                <p>Error al cargar los equipos: {error}</p>
+                <button className="retry-btn" onClick={fetchTeams}>Reintentar</button>
+              </div>
+            ) : teams.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">⚽</div>
-                <p>Los equipos participantes se mostrarán aquí</p>
+                <p>No hay equipos disponibles para esta competición</p>
               </div>
             ) : (
               <div className="teams-grid">
-                {/* Aquí se mostrarán los equipos cuando vengan del backend */}
+                {teams.map((team, index) => (
+                  <div key={team.id || index} className="team-card">
+                    <div className="team-logo">
+                      {team.logo ? (
+                        <img src={team.logo} alt={team.nom} />
+                      ) : (
+                        <div className="team-logo-placeholder">
+                          {team.nom ? team.nom.charAt(0).toUpperCase() : '?'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="team-info">
+                      <h4 className="team-name">{team.nom || 'Nombre no disponible'}</h4>
+                      {team.ciutat && <p className="team-city">{team.ciutat}</p>}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </section>
 
-        {/* Sección de Partidos */}
         <section className="matches-section">
-          <div className="section-header">
-            <h3>PARTIDOS</h3>
-          </div>
-          
-          {/* Filtro de partidos */}
+          <div className="section-header"><h3>PARTIDOS</h3></div>
           <div className="matches-filter">
-            <button 
+            <button
               className={`filter-btn ${matchFilter === 'jugados' ? 'active' : ''}`}
               onClick={() => setMatchFilter('jugados')}
             >
               Partidos Jugados
             </button>
-            <button 
+            <button
               className={`filter-btn ${matchFilter === 'futuros' ? 'active' : ''}`}
               onClick={() => setMatchFilter('futuros')}
             >
               Próximos Partidos
             </button>
           </div>
-
-          {/* Contenedor de partidos */}
           <div className="matches-container">
-            {matches.length === 0 ? (
+            {filteredMatches.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">📅</div>
                 <p>
-                  {matchFilter === 'jugados' 
-                    ? 'Los partidos jugados se mostrarán aquí' 
-                    : 'Los próximos partidos se mostrarán aquí'
-                  }
+                  {matchFilter === 'jugados'
+                    ? 'No hay partidos jugados disponibles para esta competición.'
+                    : 'No hay próximos partidos disponibles para esta competición.'}
                 </p>
               </div>
             ) : (
               <div className="matches-list">
-                {/* Aquí se mostrarán los partidos cuando vengan del backend */}
+                {filteredMatches.map(match => (
+                  <div
+                    key={match.id}
+                    className="match-card"
+                    onClick={() => handleClickPartido(match)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="match-date">
+                      {new Date(match.data).toLocaleString('es-ES', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </div>
+                    <div className="match-teams">
+                      <span>{match.local}</span> vs <span>{match.visitant}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="main-footer">
         <div className="footer-content">
           <div className="footer-section">
@@ -139,4 +239,4 @@ function LaLigaPage({ onNavigateToHome, onNavigateToMyBets, onNavigateBack }) {
   );
 }
 
-export default LaLigaPage;
+export default SerieAPage;

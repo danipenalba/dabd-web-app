@@ -20,13 +20,17 @@ class ApostesUsuari:
             return False
 
         if len(simples) == 1:
+            # 👉 Aquí SÍ debes usar el importe real
             aposta = simples[0]
+            aposta.amount = amount  # <-- corregido aquí
             return aposta.insertar_base() and aposta.insertar_especifica()
 
+        # Si es combinada, el importe solo va a la combinada
         premisa_combinada = " + ".join(all_premises)
         combinada = ApostaCombinada(premisa_combinada, odds, usuari_dni, partit_id, 'pendiente', amount, simples)
-        
+
         if not combinada.insertar_base():
             return False
-        
+
         return combinada.insertar_especifica()
+
