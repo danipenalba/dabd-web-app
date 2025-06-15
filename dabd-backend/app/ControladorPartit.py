@@ -34,3 +34,18 @@ class ControladorPartit:
             "visitant": partit.getVisitant(),
             "competicio_id": partit.getCompeticioId()
         }, 200
+    
+
+    def obtenir_partits_despres_del_18_juny_2025(self):
+        self.log("🔎 Obtenint partits a partir del 18 de juny de 2025")
+        partits = self.cercador.cerca_partits_despres_del_18_juny_2025()
+        llista = [{
+            "id": p.getId(),
+            "data": p.getData(),
+            "local": p.getLocal(),
+            "visitant": p.getVisitant(),
+            "competicio_id": p.getCompeticioId()
+        } for p in partits]
+        return jsonify(llista), 200
+
+

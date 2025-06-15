@@ -163,6 +163,16 @@ def obtenir_equips(competicio_id):
 
 
 
+@main.route('/partits/despres-18-juny', methods=['GET'])
+def obtenir_partits_despres_18_juny():
+    ctrl = ControladorPartit()
+    return ctrl.obtenir_partits_despres_del_18_juny_2025()
+
+
+
+
+
+
 
 
 @main.route('/apostasmostrar', methods=['GET'])

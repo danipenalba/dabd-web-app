@@ -44,3 +44,26 @@ class CercadoraPartit:
 
         self.log(f"✅ {len(partits)} partits encontrados.")
         return partits
+    
+    def cerca_partits_despres_del_18_juny_2025(self) -> list[Partit]:
+        db = ConnexioBD()
+        data_minima = "2025-06-18"
+        self.log(f"🔍 Buscando partits después del {data_minima}...")
+        query = "SELECT * FROM partit WHERE data >= %s ORDER BY data ASC"
+        res = db.executarConsulta(query, (data_minima,))
+        db.tancar()
+
+        partits = []
+        for data in res:
+            partits.append(Partit(
+                id=data["id"],
+                data=data["data"],
+                local=data["local"],
+                visitant=data["visitant"],
+                competicio_id=data["competicio_id"]
+            ))
+
+        self.log(f"✅ {len(partits)} partits encontrados.")
+        return partits
+
+
