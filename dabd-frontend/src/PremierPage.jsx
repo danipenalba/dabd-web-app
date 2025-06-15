@@ -101,7 +101,8 @@ function PremierLeaguePage({ onNavigateToHome, onNavigateToMyBets, onNavigateBac
         </div>
         <div className="nav-buttons">
           <button className="back-btn" onClick={onNavigateBack}>← Volver</button>
-          <button className="my-bets-btn" onClick={onNavigateToMyBets}>Mis Apuestas</button>
+          <button className="my-bets-btn" onClick={() => navigate('/apostesusuari')}>Mis Apuestas</button>
+
           <button className="logout-btn" onClick={onNavigateToHome}>Cerrar Sesión</button>
         </div>
       </nav>
