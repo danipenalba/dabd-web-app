@@ -3,6 +3,8 @@ from flask import request, jsonify, session
 from app.Usuari import Usuari
 from app.CercadoraUsuari import CercadoraUsuari
 from app.Targeta import Targeta  # Importar
+from app.connexio_db import ConnexioBD
+
 
 
 class ControladorUsuari:
@@ -160,3 +162,42 @@ class ControladorUsuari:
 
         # 🔧 AÑADIR ESTE RETURN PARA CASOS SIN TARGETA
         return {"message": "Perfil actualitzat correctament"}, 200
+    
+    def verificar_saldo(self, dni: str, cantidad: float) -> bool:
+        """Verifica si el usuario tiene saldo suficiente"""
+        try:
+            db = ConnexioBD()
+            query = "SELECT saldo FROM usuari WHERE id_dni = %s"
+            resultado = db.executarConsulta(query, (dni,))
+            
+            if not resultado:
+                return False
+                
+            saldo_actual = resultado[0]['saldo']
+            return saldo_actual >= cantidad
+        except Exception as e:
+            print(f"Error al verificar saldo: {e}")
+            return False
+        finally:
+            db.tancar()
+
+    def actualizar_saldo(self, dni: str, cantidad: float) -> bool:
+        """Actualiza el saldo del usuario con verificación de saldo suficiente"""
+        if cantidad < 0 and not self.verificar_saldo(dni, abs(cantidad)):
+            return False
+
+        try:
+            db = ConnexioBD()
+            query = "UPDATE usuari SET saldo = saldo + %s WHERE id_dni = %s RETURNING saldo"
+            resultado = db.executarConsulta(query, (cantidad, dni))
+            
+            if not resultado:
+                return False
+                
+            nuevo_saldo = resultado[0]['saldo']
+            return nuevo_saldo >= 0
+        except Exception as e:
+            print(f"Error al actualizar saldo: {e}")
+            return False
+        finally:
+            db.tancar()

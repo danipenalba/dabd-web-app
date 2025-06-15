@@ -99,7 +99,14 @@ def crear_aposta():
     if not (match and bets and odds and amount):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-    partit_id = match.get("id")  # Asegúrate de enviar "id" en el match desde el frontend
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            return jsonify({"error": "El importe debe ser mayor que cero"}), 400
+    except ValueError:
+        return jsonify({"error": "Importe no válido"}), 400
+
+    partit_id = match.get("id")
     if not partit_id:
         return jsonify({"error": "Falta el ID del partido"}), 400
 
@@ -111,7 +118,7 @@ def crear_aposta():
     if success:
         return jsonify({"mensaje": "Apuesta creada correctamente"}), 201
     else:
-        return jsonify({"error": "Error al crear apuesta"}), 500
+        return jsonify({"error": "Error al crear apuesta: saldo insuficiente o datos inválidos"}), 400
 
 @main.route('/infoUsuari', methods=['GET'])
 def obtenir_perfil():
@@ -180,3 +187,5 @@ def get_match(match_id):
     ctrl = ControladorPartit()
     result, status_code = ctrl.obtenir_partit(match_id)
     return jsonify(result), status_code
+
+
