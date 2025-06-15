@@ -20,8 +20,17 @@ function BundesligaPage({ onNavigateToHome, onNavigateToMyBets, onNavigateBack }
       setError(null);
       const response = await fetch(`http://localhost:5000/equips/${COMPETITION_ID}`);
       if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-      const data = await response.json();
-      setTeams(data);
+      const teamNames = await response.json(); // Esto es un array de strings
+      
+      // Convertimos los nombres de equipos a objetos con la estructura esperada
+      const teamsData = teamNames.map((teamName, index) => ({
+        id: index, // Usamos el índice como ID temporal
+        nom: teamName, // El nombre del equipo
+        logo: '', // No hay logos en los datos
+        ciutat: '' // No hay información de ciudad
+      }));
+      
+      setTeams(teamsData);
     } catch (err) {
       console.error('Error al obtener equipos:', err);
       setError(err.message);
