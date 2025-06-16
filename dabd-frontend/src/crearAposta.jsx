@@ -80,10 +80,10 @@ function CrearAposta({ onNavigateToMainPage }) {
   useEffect(() => {
     const hasSelectedBets = Object.keys(selectedBets.home).length > 0 || 
                             Object.keys(selectedBets.away).length > 0;
-
+  
     if (hasSelectedBets) {
-      const randomOdds = (Math.random() * 4 + 1).toFixed(2);
-      setFinalOdds(parseFloat(randomOdds));
+      const randomOdds = Math.floor(Math.random() * 4 + 1); // Cuota como entero
+      setFinalOdds(randomOdds);
     } else {
       setFinalOdds(null);
     }
