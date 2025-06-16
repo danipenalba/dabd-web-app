@@ -188,11 +188,7 @@ function MainPage({ onNavigateToHome }) {
 </div>
 
         <div className="user-nav-section">
-          {userData && (
-            <span className="welcome-user">
-              <i className="fas fa-user"></i> {userData.nom_usuari || userData.dni}
-            </span>
-          )}
+         
           <div className="nav-buttons">
             <button className="profile-btn" onClick={handleProfileClick}>
               <i className="fas fa-user-circle"></i> Mi Perfil
