@@ -53,7 +53,8 @@ class CercadoraUsuari:
             dni=data["id_dni"],
             mail=data["mail"],
             nom=data["nom"],
-            saldo=data["saldo"],
+            # Convertir el saldo a float explícitamente
+            saldo=float(data["saldo"]) if data["saldo"] is not None else 0.0,
             password=data["password"]
         )
 

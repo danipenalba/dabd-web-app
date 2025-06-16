@@ -132,15 +132,14 @@ def obtenir_perfil():
     if not usuari:
         return jsonify({"error": "Usuari no trobat"}), 404
 
-    # Obtener la tarjeta asociada (puede ser None)
     targeta = Targeta.obtenir_per_usuari(dni)
 
     dades_usuari = {
         "nom": usuari.getNom(),
         "mail": usuari.getMail(),
         "dni": usuari.getDNI(),
-        "saldo": usuari.getSaldo(),
-        # Añadimos los datos de la tarjeta solo si existe
+        # Convertir el saldo a float explícitamente
+        "saldo": float(usuari.getSaldo()),
         "targeta": {
             "id_num_targ": targeta.id_num_targ,
             "data_cad": targeta.data_cad,

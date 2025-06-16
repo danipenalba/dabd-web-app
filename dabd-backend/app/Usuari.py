@@ -5,7 +5,7 @@ class Usuari:
         self._dni = dni
         self._mail = mail
         self._nom = nom
-        self._saldo = saldo
+        self._saldo = float(saldo) if saldo is not None else 0.0
         self._password = password
 
     # Getters
