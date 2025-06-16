@@ -94,9 +94,10 @@ function BundesligaPage({ onNavigateToHome, onNavigateToMyBets, onNavigateBack }
   return (
     <div className="competition-container">
       <nav className="navbar">
-        <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
-          EUROBET
-        </div>
+      <div className="logo" onClick={() => navigate('/main')} style={{ cursor: 'pointer' }}>
+  EUROBET
+</div>
+
         <div className="nav-buttons">
           <button className="back-btn" onClick={onNavigateBack}>← Volver</button>
           <button className="my-bets-btn" onClick={() => navigate('/apostesusuari')}>Mis Apuestas</button>

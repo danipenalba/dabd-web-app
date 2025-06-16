@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import './UserProfile.css';
 
 function UserProfile() {
+  const navigate = useNavigate();
+
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -188,7 +192,9 @@ function UserProfile() {
   return (
     <div className="app-container">
       <nav className="navbar">
-        <div className="logo">EUROBET</div>
+      <div className="logo" onClick={() => navigate('/main')} style={{ cursor: 'pointer' }}>
+  EUROBET
+</div>
         <div className="nav-buttons">
           <button className="login-btn">Cerrar Sesión</button>
         </div>

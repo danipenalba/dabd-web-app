@@ -183,9 +183,10 @@ function MainPage({ onNavigateToHome }) {
     <div className="mainpage-container">
       {/* Barra de navegación superior */}
       <nav className="navbar">
-        <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
-          EUROBET
-        </div>
+      <div className="logo" onClick={() => navigate('/main')} style={{ cursor: 'pointer' }}>
+  EUROBET
+</div>
+
         <div className="user-nav-section">
           {userData && (
             <span className="welcome-user">

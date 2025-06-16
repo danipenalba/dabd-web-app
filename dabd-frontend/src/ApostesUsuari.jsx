@@ -21,8 +21,7 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
     .reduce((total, apuesta) => total + (apuesta.cuota * apuesta.importe - apuesta.importe), 0);
 
   const handleCreateBet = () => {
-    console.log('Crear nueva apuesta');
-    // navigate('/crear-apuesta');
+    navigate('/main');
   };
 
   const handleBackToCompetitions = () => {
@@ -102,9 +101,9 @@ function ApostesUsuari({ onNavigateToHome, onNavigateToMainPage }) {
     <div className="apostes-container">
       {/* Barra de navegación superior */}
       <nav className="navbar">
-        <div className="logo" onClick={onNavigateToHome} style={{ cursor: 'pointer' }}>
-          EUROBET
-        </div>
+      <div className="logo" onClick={() => navigate('/main')} style={{ cursor: 'pointer' }}>
+        EUROBET
+      </div>
         <div className="nav-buttons">
           <button className="competitions-btn" onClick={handleBackToCompetitions}>
             Competiciones

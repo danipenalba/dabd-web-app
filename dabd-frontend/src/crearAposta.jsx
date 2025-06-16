@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // ← AÑADIDO useNavigate
+import { useLocation, useNavigate } from 'react-router-dom';
 import './crearAposta.css';
 
 function CrearAposta({ onNavigateToMainPage }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [userBalance, setUserBalance] = useState(0);
 
   const partidoPasado = location.state?.partido;
 
+  const fetchUserBalance = async () => {
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+      const response = await fetch(`${baseUrl}/infoUsuari`, {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUserBalance(data.saldo);
+      }
+    } catch (error) {
+      console.error("Error al obtener el saldo:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchUserBalance();
+    
     if (!partidoPasado) {
-      // Redirigir a /laliga si no se proporciona partido
       setTimeout(() => navigate('/laliga'), 3000);
     }
   }, [partidoPasado, navigate]);
@@ -95,6 +113,11 @@ function CrearAposta({ onNavigateToMainPage }) {
       return;
     }
 
+    if (parseFloat(betAmount) > userBalance) {
+      setError('Saldo insuficiente para realizar esta apuesta.');
+      return;
+    }
+
     setIsCreatingBet(true);
     setError('');
     setSuccess('');
@@ -124,6 +147,7 @@ function CrearAposta({ onNavigateToMainPage }) {
         setSelectedBets({ home: {}, away: {} });
         setBetAmount('');
         setFinalOdds(null);
+        await fetchUserBalance(); // Actualizar saldo después de la apuesta
         setTimeout(() => {
           const successElement = document.querySelector('.success-message');
           if (successElement) successElement.scrollIntoView({ behavior: 'smooth' });
@@ -182,7 +206,10 @@ function CrearAposta({ onNavigateToMainPage }) {
           EUROBET
         </div>
         <div className="nav-buttons">
-          <button className="back-btn" onClick={onNavigateToMainPage}>← Volver</button>
+          <button className="back-btn" onClick={() => navigate(-1)}>← Volver</button>
+          <div className="user-balance">
+            Saldo: €{userBalance.toFixed(2)}
+          </div>
         </div>
       </nav>
 
